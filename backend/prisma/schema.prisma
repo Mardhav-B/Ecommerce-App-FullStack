@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cart      Cart?
+  orders    Order[]
+  addresses Address[]
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  stock       Int
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+}
+
+model Cart {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+
+  user  User       @relation(fields: [userId], references: [id])
+  items CartItem[]
+}
+
+model CartItem {
+  id        String  @id @default(uuid())
+  cartId    String
+  productId String
+  quantity  Int
+
+  cart    Cart    @relation(fields: [cartId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+}
+
+model Order {
+  id         String   @id @default(uuid())
+  userId     String
+  totalPrice Float
+  status     OrderStatus
+  createdAt  DateTime @default(now())
+
+  user  User        @relation(fields: [userId], references: [id])
+  items OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  userId    String
+  street    String
+  city      String
+  state     String
+  country   String
+  zipCode   String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
