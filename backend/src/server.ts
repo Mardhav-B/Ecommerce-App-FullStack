@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import productRoutes from "./routes/product.routes";
 import authRoutes from "./routes/auth.routes";
+import cartRoutes from "./routes/cart.routes";
 
 dotenv.config();
 
@@ -15,14 +16,16 @@ app.use(
     credentials: true,
   }),
 );
-app.use("/api/products", productRoutes);
+
 app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/cart", cartRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Ecommerce API running");
+  res.send("Ecommerce API running 🚀");
 });
 
 app.use((req, res) => {
