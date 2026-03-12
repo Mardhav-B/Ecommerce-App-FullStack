@@ -1,0 +1,69 @@
+import api from "@/api/axios";
+
+export interface ShippingFormValues {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
+
+interface CreatedOrder {
+  id: string;
+  totalPrice: number;
+}
+
+interface CheckoutSessionResponse {
+  url: string;
+}
+
+function getAuthHeaders() {
+  const token = localStorage.getItem("accessToken");
+
+  if (!token) {
+    throw new Error("Please sign in to continue.");
+  }
+
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+}
+
+export async function createOrder() {
+  const response = await api.post<CreatedOrder>(
+    "/orders",
+    {},
+    {
+      headers: getAuthHeaders(),
+    },
+  );
+
+  return response.data;
+}
+
+export async function createCheckoutSession(orderId: string) {
+  try {
+    const response = await api.post<CheckoutSessionResponse>(
+      "/payment/create-checkout-session",
+      { orderId },
+      {
+        headers: getAuthHeaders(),
+      },
+    );
+
+    return response.data;
+  } catch {
+    const response = await api.post<CheckoutSessionResponse>(
+      "/payment/checkout",
+      { orderId },
+      {
+        headers: getAuthHeaders(),
+      },
+    );
+
+    return response.data;
+  }
+}

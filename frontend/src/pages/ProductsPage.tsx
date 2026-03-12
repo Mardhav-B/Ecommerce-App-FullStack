@@ -115,8 +115,8 @@ export default function ProductsPage() {
           </h1>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
-          <div className="lg:sticky lg:top-28 lg:self-start">
+        <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start">
+          <div className="lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] lg:self-start lg:overflow-y-auto lg:pr-2">
             <ProductFilters value={filters} onChange={setFilters} />
           </div>
 

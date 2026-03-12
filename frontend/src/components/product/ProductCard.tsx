@@ -1,6 +1,6 @@
-import { memo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ShoppingCart, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -11,10 +11,17 @@ interface ProductCardProps {
 }
 
 function ProductCardComponent({ product }: ProductCardProps) {
+  const queryClient = useQueryClient();
   const [feedback, setFeedback] = useState<string | null>(null);
+
+  useEffect(() => {
+    setFeedback(null);
+  }, [product.id]);
+
   const cartMutation = useMutation({
-    mutationFn: () => addToCart(product.id, 1),
+    mutationFn: ({ productId }: { productId: string }) => addToCart(productId, 1),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
       setFeedback("Added to cart");
       window.setTimeout(() => setFeedback(null), 2000);
     },
@@ -59,8 +66,9 @@ function ProductCardComponent({ product }: ProductCardProps) {
         </div>
 
         <Button
+          type="button"
           className="mt-2 w-full bg-biscuit text-white hover:bg-biscuit-dark"
-          onClick={() => cartMutation.mutate()}
+          onClick={() => cartMutation.mutate({ productId: product.id })}
           disabled={cartMutation.isPending}
         >
           <ShoppingCart className="size-4" />

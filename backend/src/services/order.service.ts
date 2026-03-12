@@ -50,10 +50,6 @@ export const createOrder = async (userId: string) => {
     },
   });
 
-  await prisma.cartItem.deleteMany({
-    where: { cartId: cart.id },
-  });
-
   return order;
 };
 

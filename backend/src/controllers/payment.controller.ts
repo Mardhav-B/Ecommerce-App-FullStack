@@ -3,9 +3,10 @@ import { createCheckoutSession } from "../services/payment.service";
 
 export const checkout = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.userId;
+    const userId = (req as any).user.id;
+    const { orderId } = req.body as { orderId?: string };
 
-    const session = await createCheckoutSession(userId);
+    const session = await createCheckoutSession(userId, orderId);
 
     res.json({
       url: session.url,

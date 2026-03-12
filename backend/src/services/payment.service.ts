@@ -1,29 +1,17 @@
 import prisma from "../config/prisma";
 import stripe from "../config/stripe";
 
-interface CartItemWithProduct {
+interface ItemWithProduct {
   product: {
+    id?: string;
     name: string;
     price: number;
   };
   quantity: number;
 }
 
-export const createCheckoutSession = async (userId: string) => {
-  const cart = await prisma.cart.findUnique({
-    where: { userId },
-    include: {
-      items: {
-        include: { product: true },
-      },
-    },
-  });
-
-  if (!cart || cart.items.length === 0) {
-    throw new Error("Cart is empty");
-  }
-
-  const lineItems = cart.items.map((item: CartItemWithProduct) => ({
+function toStripeLineItems(items: ItemWithProduct[]) {
+  return items.map((item) => ({
     price_data: {
       currency: "usd",
       product_data: {
@@ -33,6 +21,45 @@ export const createCheckoutSession = async (userId: string) => {
     },
     quantity: item.quantity,
   }));
+}
+
+export const createCheckoutSession = async (userId: string, orderId?: string) => {
+  let lineItems;
+
+  if (orderId) {
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+        userId,
+      },
+      include: {
+        items: {
+          include: { product: true },
+        },
+      },
+    });
+
+    if (!order || order.items.length === 0) {
+      throw new Error("Order not found or empty");
+    }
+
+    lineItems = toStripeLineItems(order.items as ItemWithProduct[]);
+  } else {
+    const cart = await prisma.cart.findUnique({
+      where: { userId },
+      include: {
+        items: {
+          include: { product: true },
+        },
+      },
+    });
+
+    if (!cart || cart.items.length === 0) {
+      throw new Error("Cart is empty");
+    }
+
+    lineItems = toStripeLineItems(cart.items as ItemWithProduct[]);
+  }
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
@@ -42,6 +69,7 @@ export const createCheckoutSession = async (userId: string) => {
     cancel_url: `${process.env.FRONTEND_URL}/cancel`,
     metadata: {
       userId,
+      orderId: orderId || "",
     },
   });
 

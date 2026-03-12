@@ -8,7 +8,7 @@ import {
 
 export const fetchCart = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.userId;
+    const userId = (req as any).user.id;
 
     const cart = await getCart(userId);
 
@@ -22,7 +22,7 @@ export const fetchCart = async (req: Request, res: Response) => {
 
 export const addItemToCart = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.userId;
+    const userId = (req as any).user.id;
 
     const { productId, quantity } = req.body;
 
