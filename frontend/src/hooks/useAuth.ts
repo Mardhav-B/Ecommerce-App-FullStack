@@ -1,18 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { getProfile } from "../services/auth.api";
+import { getProfile, type SavedAddress } from "../services/auth.api";
 
 export interface AuthUser {
   id: string;
   name: string;
   email: string;
-  addresses?: {
-    id: string;
-    street: string;
-    city: string;
-    state: string;
-    country: string;
-    zipCode: string;
-  }[];
+  addresses?: SavedAddress[];
 }
 
 export function useAuth() {

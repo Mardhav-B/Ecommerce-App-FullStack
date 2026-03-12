@@ -1,11 +1,14 @@
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { MapPinHouse, Plus, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+
 import { useAuth } from "../hooks/useAuth";
-import { logoutUser } from "../services/auth.api";
+import { logoutUser, saveAddress } from "../services/auth.api";
 import { Skeleton } from "../components/ui/skeleton";
 
-interface Address {
-  id: string;
+interface AddressForm {
   street: string;
   city: string;
   state: string;
@@ -15,11 +18,30 @@ interface Address {
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: user, isLoading, isError } = useAuth();
   const [visible, setVisible] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  const { register, handleSubmit, reset } = useForm<AddressForm>();
+
+  const addressMutation = useMutation({
+    mutationFn: saveAddress,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+      reset();
+      setSaveMessage("Address saved successfully.");
+    },
+    onError: (error) => {
+      setSaveMessage(
+        error instanceof Error ? error.message : "Failed to save address",
+      );
+    },
+  });
 
   const handleLogout = async () => {
     await logoutUser();
+    queryClient.removeQueries({ queryKey: ["authUser"] });
     navigate("/");
   };
 
@@ -31,13 +53,10 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md space-y-4 transition-opacity duration-500">
-          <Skeleton className="h-8 w-1/2 mx-auto" />
-          <Skeleton className="h-6 w-full" />
-          <Skeleton className="h-6 w-full" />
-          <Skeleton className="h-6 w-full" />
-          <Skeleton className="h-10 w-full mt-4" />
+      <div className="min-h-screen bg-[linear-gradient(180deg,#fcf5ee_0%,#f3e5d6_100%)] px-4 py-10">
+        <div className="mx-auto max-w-6xl space-y-6">
+          <Skeleton className="h-48 w-full rounded-[2rem]" />
+          <Skeleton className="h-80 w-full rounded-[2rem]" />
         </div>
       </div>
     );
@@ -49,42 +68,131 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#fcf5ee_0%,#f3e5d6_100%)] px-4 py-10">
       <div
-        className={`bg-white shadow-lg rounded-xl p-8 w-full max-w-md transition-all duration-300 hover:shadow-xl ${
-          visible ? "opacity-100" : "opacity-0"
+        className={`mx-auto max-w-6xl space-y-8 transition-all duration-500 ${
+          visible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
         }`}
       >
-        <h2 className="text-2xl font-bold mb-6 text-center">Profile</h2>
+        <section className="overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#e7ba8f_0%,#c98d59_100%)] p-8 text-white shadow-[0_30px_90px_rgba(106,70,39,0.18)]">
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-white/75">
+                Your profile
+              </p>
+              <h1 className="mt-3 text-4xl font-semibold">{user.name}</h1>
+              <p className="mt-2 text-white/85">{user.email}</p>
+            </div>
 
-        <p className="mb-2">
-          <strong>Name:</strong> {user.name}
-        </p>
-
-        <p className="mb-4">
-          <strong>Email:</strong> {user.email}
-        </p>
-
-        {user.addresses && user.addresses.length > 0 && (
-          <div className="mb-4">
-            <h3 className="font-semibold mb-2">Addresses</h3>
-            <ul className="space-y-2">
-              {user.addresses?.map((addr: Address) => (
-                <li key={addr.id} className="text-sm">
-                  {addr.street}, {addr.city}, {addr.state}, {addr.country}{" "}
-                  {addr.zipCode}
-                </li>
-              ))}
-            </ul>
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-5 py-3 text-sm font-semibold backdrop-blur transition hover:bg-white/20"
+            >
+              <LogOut className="size-4" />
+              Logout
+            </button>
           </div>
-        )}
+        </section>
 
-        <button
-          onClick={handleLogout}
-          className="w-full bg-red-500 text-white py-2 rounded"
-        >
-          Logout
-        </button>
+        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+          <section className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex size-11 items-center justify-center rounded-2xl bg-biscuit-light text-biscuit-dark">
+                <MapPinHouse className="size-5" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-semibold text-slate-900">
+                  Saved Addresses
+                </h2>
+                <p className="text-sm text-slate-500">
+                  Store delivery addresses the way large marketplaces do.
+                </p>
+              </div>
+            </div>
+
+            {user.addresses && user.addresses.length > 0 ? (
+              <div className="grid gap-4 md:grid-cols-2">
+                {user.addresses.map((address) => (
+                  <div
+                    key={address.id}
+                    className="rounded-[1.5rem] border border-biscuit-light bg-[linear-gradient(180deg,#fff_0%,#fcf3ea_100%)] p-5"
+                  >
+                    <div className="mb-3 inline-flex rounded-full bg-biscuit-light px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-biscuit-dark">
+                      Delivery address
+                    </div>
+                    <p className="text-sm leading-7 text-slate-700">
+                      {address.street}
+                      <br />
+                      {address.city}, {address.state}
+                      <br />
+                      {address.country} - {address.zipCode}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-[1.5rem] border border-dashed border-biscuit-light bg-biscuit-light/35 p-8 text-center text-slate-500">
+                No saved addresses yet.
+              </div>
+            )}
+          </section>
+
+          <section className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex size-11 items-center justify-center rounded-2xl bg-biscuit-light text-biscuit-dark">
+                <Plus className="size-5" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-semibold text-slate-900">
+                  Add New Address
+                </h2>
+                <p className="text-sm text-slate-500">
+                  Save a shipping address for your next checkout.
+                </p>
+              </div>
+            </div>
+
+            <form
+              onSubmit={handleSubmit((data) => addressMutation.mutate(data))}
+              className="space-y-4"
+            >
+              {(
+                [
+                  ["street", "Street address"],
+                  ["city", "City"],
+                  ["state", "State"],
+                  ["country", "Country"],
+                  ["zipCode", "ZIP code"],
+                ] as const
+              ).map(([field, label]) => (
+                <label key={field} className="block">
+                  <span className="mb-2 block text-sm font-medium text-slate-700">
+                    {label}
+                  </span>
+                  <input
+                    {...register(field)}
+                    placeholder={label}
+                    className="h-12 w-full rounded-2xl border border-biscuit/25 bg-[#fffaf6] px-4 outline-none transition focus:border-biscuit"
+                  />
+                </label>
+              ))}
+
+              {saveMessage ? (
+                <div className="rounded-2xl border border-biscuit/20 bg-biscuit-light/50 px-4 py-3 text-sm text-slate-700">
+                  {saveMessage}
+                </div>
+              ) : null}
+
+              <button
+                type="submit"
+                disabled={addressMutation.isPending}
+                className="w-full rounded-2xl bg-biscuit py-3 font-semibold text-white transition hover:bg-biscuit-dark disabled:opacity-60"
+              >
+                {addressMutation.isPending ? "Saving..." : "Save Address"}
+              </button>
+            </form>
+          </section>
+        </div>
       </div>
     </div>
   );

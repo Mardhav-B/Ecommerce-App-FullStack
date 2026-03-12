@@ -1,72 +1,51 @@
-import { Facebook, Twitter, Instagram } from "lucide-react";
+import { Facebook, Instagram, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <footer className="bg-biscuit text-white mt-16">
-      <div className="max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-4 gap-8">
+    <footer className="mt-16 border-t border-biscuit/20 bg-[linear-gradient(180deg,#f4e6d9_0%,#e8cfb5_100%)] text-slate-800">
+      <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-4">
         <div>
-          <h2 className="text-2xl font-bold mb-3">ShopSphere</h2>
-
-          <p className="text-sm text-gray-100">
-            Your one stop destination for the latest gadgets, fashion, and
-            lifestyle products.
+          <h2 className="text-2xl font-black tracking-[0.15em] text-biscuit-dark">
+            SHOPSPHERE
+          </h2>
+          <p className="mt-4 text-sm leading-6 text-slate-600">
+            A cleaner storefront for daily essentials, curated collections, and
+            smoother account management.
           </p>
         </div>
 
         <div>
-          <h3 className="font-semibold mb-3">Quick Links</h3>
-
-          <ul className="space-y-2 text-sm">
-            <li>
-              <Link to="/" className="hover:underline">
-                Home
-              </Link>
-            </li>
-
-            <li>
-              <Link to="/products" className="hover:underline">
-                Products
-              </Link>
-            </li>
-
-            <li>
-              <Link to="/cart" className="hover:underline">
-                Cart
-              </Link>
-            </li>
-
-            <li>
-              <Link to="/profile" className="hover:underline">
-                Profile
-              </Link>
-            </li>
+          <h3 className="font-semibold text-slate-900">Quick Links</h3>
+          <ul className="mt-4 space-y-3 text-sm text-slate-600">
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/products">Products</Link></li>
+            <li><Link to="/auth">Login</Link></li>
+            <li><Link to="/profile">Profile</Link></li>
           </ul>
         </div>
 
         <div>
-          <h3 className="font-semibold mb-3">Customer Service</h3>
-
-          <ul className="space-y-2 text-sm">
+          <h3 className="font-semibold text-slate-900">Customer Service</h3>
+          <ul className="mt-4 space-y-3 text-sm text-slate-600">
             <li>Help Center</li>
             <li>Returns</li>
-            <li>Shipping</li>
-            <li>Contact Us</li>
+            <li>Shipping Updates</li>
+            <li>Order Support</li>
           </ul>
         </div>
 
         <div>
-          <h3 className="font-semibold mb-3">Follow Us</h3>
-
-          <div className="flex gap-4">
-            <Facebook className="cursor-pointer hover:text-gray-200" />
-            <Twitter className="cursor-pointer hover:text-gray-200" />
-            <Instagram className="cursor-pointer hover:text-gray-200" />
+          <h3 className="font-semibold text-slate-900">Follow Us</h3>
+          <div className="mt-4 flex gap-4 text-biscuit-dark">
+            <Facebook className="cursor-pointer transition hover:scale-110" />
+            <Twitter className="cursor-pointer transition hover:scale-110" />
+            <Instagram className="cursor-pointer transition hover:scale-110" />
           </div>
         </div>
       </div>
 
-      <div className="border-t border-white/20 py-4 text-center text-sm">
+      <div className="border-t border-biscuit/20 py-4 text-center text-sm text-slate-600">
         © {new Date().getFullYear()} ShopSphere. All rights reserved.
       </div>
     </footer>

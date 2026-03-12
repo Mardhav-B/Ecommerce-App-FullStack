@@ -1,12 +1,26 @@
-import { useQuery } from "@tanstack/react-query";
-import api from "../api/axios";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
-export function useProducts() {
-  return useQuery({
-    queryKey: ["products"],
-    queryFn: async () => {
-      const res = await api.get("/products");
-      return res.data.products;
-    },
+import {
+  fetchProducts,
+  type ProductFilters,
+  type ProductsResponse,
+} from "@/services/product.api";
+
+interface UseProductsOptions extends ProductFilters {
+  limit?: number;
+}
+
+export function useProducts(options: UseProductsOptions = {}) {
+  return useInfiniteQuery<ProductsResponse>({
+    queryKey: ["products", options],
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      fetchProducts({
+        ...options,
+        page: Number(pageParam),
+        limit: options.limit ?? 12,
+      }),
+    getNextPageParam: (lastPage) =>
+      lastPage.hasMore ? lastPage.page + 1 : undefined,
   });
 }

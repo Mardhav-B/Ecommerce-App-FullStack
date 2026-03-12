@@ -7,13 +7,7 @@ import {
 } from "@/components/ui/carousel";
 
 import ProductCard from "./ProductCard";
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  imageUrl: string;
-}
+import type { Product } from "@/services/product.api";
 
 export default function ProductCarousel({
   products,
