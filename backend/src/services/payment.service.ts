@@ -1,6 +1,14 @@
 import prisma from "../config/prisma";
 import stripe from "../config/stripe";
 
+interface CartItemWithProduct {
+  product: {
+    name: string;
+    price: number;
+  };
+  quantity: number;
+}
+
 export const createCheckoutSession = async (userId: string) => {
   const cart = await prisma.cart.findUnique({
     where: { userId },
@@ -15,7 +23,7 @@ export const createCheckoutSession = async (userId: string) => {
     throw new Error("Cart is empty");
   }
 
-  const lineItems = cart.items.map((item) => ({
+  const lineItems = cart.items.map((item: CartItemWithProduct) => ({
     price_data: {
       currency: "usd",
       product_data: {

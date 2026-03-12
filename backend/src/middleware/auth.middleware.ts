@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import prisma from "../config/prisma";
 
-const ACCESS_SECRET = process.env.ACCESS_SECRET || "access_secret";
-
-export const authenticate = (
+export const authenticate = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -19,13 +18,28 @@ export const authenticate = (
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(token, ACCESS_SECRET);
+    const decoded: any = jwt.verify(token, process.env.ACCESS_SECRET!);
 
-    (req as any).user = decoded;
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        message: "User not found",
+      });
+    }
+
+    (req as any).user = user;
 
     next();
-  } catch {
-    res.status(401).json({
+  } catch (err) {
+    return res.status(401).json({
       message: "Invalid token",
     });
   }

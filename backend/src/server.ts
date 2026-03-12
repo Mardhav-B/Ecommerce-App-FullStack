@@ -7,6 +7,8 @@ import authRoutes from "./routes/auth.routes";
 import cartRoutes from "./routes/cart.routes";
 import orderRoutes from "./routes/order.routes";
 import paymentRoutes from "./routes/payment.routes";
+import categoryRoutes from "./routes/category.routes";
+import bannerRoutes from "./routes/banner.routes";
 
 dotenv.config();
 
@@ -14,7 +16,11 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: [
+      process.env.FRONTEND_URL || "http://localhost:3000",
+      "http://localhost:5173",
+      "http://localhost:3000",
+    ],
     credentials: true,
   }),
 );
@@ -27,6 +33,8 @@ app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/banners", bannerRoutes);
 
 app.get("/", (req, res) => {
   res.send("Ecommerce API running");

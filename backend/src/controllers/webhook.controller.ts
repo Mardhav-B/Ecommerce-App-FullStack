@@ -2,6 +2,14 @@ import { Request, Response } from "express";
 import stripe from "../config/stripe";
 import prisma from "../config/prisma";
 
+interface CartItemWithProduct {
+  productId: string;
+  quantity: number;
+  product: {
+    price: number;
+  };
+}
+
 export const stripeWebhook = async (req: Request, res: Response) => {
   const event = req.body;
 
@@ -21,7 +29,7 @@ export const stripeWebhook = async (req: Request, res: Response) => {
 
     let totalPrice = 0;
 
-    const items = cart.items.map((item) => {
+    const items = cart.items.map((item: CartItemWithProduct) => {
       totalPrice += item.product.price * item.quantity;
 
       return {
