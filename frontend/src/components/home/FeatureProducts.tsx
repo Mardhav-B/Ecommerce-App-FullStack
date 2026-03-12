@@ -1,50 +1,55 @@
+import { useMemo } from "react";
+import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+
 import { useProducts } from "../../hooks/useProducts";
+import ProductCard from "../product/ProductCard";
 import { Skeleton } from "../ui/skeleton";
-import type { Product } from "../../services/api";
 
 export default function FeaturedProducts() {
-  const { data: products, isLoading } = useProducts();
+  const { data, isLoading } = useProducts({ limit: 8 });
+  const products = useMemo(
+    () => data?.pages.flatMap((page) => page.products).slice(0, 8) ?? [],
+    [data],
+  );
 
   return (
-    <section className="py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-10">
-          Featured Products
-        </h2>
+    <section className="px-4 py-16 md:px-6">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-biscuit-dark">
+              Featured Products
+            </p>
+            <h2 className="mt-2 text-3xl font-semibold text-slate-900 md:text-4xl">
+              New arrivals with a softer, more premium storefront.
+            </h2>
+          </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          <Link
+            to="/products"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-biscuit-dark"
+          >
+            Shop all
+            <ArrowRight className="size-4" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 gap-5 md:grid-cols-3 xl:grid-cols-4">
           {isLoading
-            ? Array.from({ length: 10 }).map((_, idx) => (
+            ? Array.from({ length: 8 }).map((_, idx) => (
                 <div
                   key={idx}
-                  className="border border-biscuit-light rounded-lg p-4 animate-pulse"
+                  className="rounded-xl border border-biscuit-light bg-white p-4"
                 >
-                  <Skeleton className="h-36 w-full mb-3" />
-                  <Skeleton className="h-4 w-3/4 mb-2" />
-                  <Skeleton className="h-4 w-1/2 mb-2" />
-                  <Skeleton className="h-8 w-full mt-3" />
+                  <Skeleton className="h-44 w-full rounded-xl" />
+                  <Skeleton className="mt-4 h-5 w-3/4 rounded" />
+                  <Skeleton className="mt-3 h-4 w-1/2 rounded" />
+                  <Skeleton className="mt-4 h-9 w-full rounded-lg" />
                 </div>
               ))
-            : (products as Product[]).slice(0, 10).map((product: Product) => (
-                <div
-                  key={product.id}
-                  className="border border-biscuit-light rounded-lg p-4 hover:shadow-lg transition-transform duration-200"
-                >
-                  <img
-                    src={product.imageUrl}
-                    className="h-36 w-full object-contain"
-                  />
-
-                  <h3 className="mt-3 text-sm font-medium">{product.name}</h3>
-
-                  <p className="text-biscuit font-bold mt-1">
-                    ${product.price}
-                  </p>
-
-                  <button className="mt-3 w-full bg-biscuit hover:bg-biscuit-dark text-white py-2 rounded-md transition-colors">
-                    Add to Cart
-                  </button>
-                </div>
+            : products.map((product) => (
+                <ProductCard key={product.id} product={product} />
               ))}
         </div>
       </div>
