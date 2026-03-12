@@ -9,10 +9,12 @@ import {
 
 export function useCart() {
   const queryClient = useQueryClient();
+  const token = localStorage.getItem("accessToken");
 
   const cartQuery = useQuery({
     queryKey: ["cart"],
     queryFn: fetchCart,
+    enabled: Boolean(token),
   });
 
   const updateQuantityMutation = useMutation({

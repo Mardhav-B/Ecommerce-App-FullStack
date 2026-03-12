@@ -1,10 +1,11 @@
 import { memo, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ShoppingCart, Star } from "lucide-react";
+import { Heart, ShoppingCart, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { addToCart, type Product } from "@/services/product.api";
+import { useWishlist } from "@/hooks/useWishlist";
 
 interface ProductCardProps {
   product: Product;
@@ -13,10 +14,13 @@ interface ProductCardProps {
 function ProductCardComponent({ product }: ProductCardProps) {
   const queryClient = useQueryClient();
   const [feedback, setFeedback] = useState<string | null>(null);
+  const { toggleWishlist, isWishlisted } = useWishlist();
 
   useEffect(() => {
     setFeedback(null);
   }, [product.id]);
+
+  const wishlisted = isWishlisted(product.id);
 
   const cartMutation = useMutation({
     mutationFn: ({ productId }: { productId: string }) => addToCart(productId, 1),
@@ -32,6 +36,20 @@ function ProductCardComponent({ product }: ProductCardProps) {
 
   return (
     <article className="group rounded-xl border border-biscuit-light bg-white p-3 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+      <div className="mb-3 flex justify-end">
+        <button
+          type="button"
+          onClick={() => toggleWishlist(product)}
+          className={`inline-flex size-9 items-center justify-center rounded-full border transition ${
+            wishlisted
+              ? "border-biscuit bg-biscuit-light text-biscuit-dark"
+              : "border-biscuit-light text-slate-500 hover:border-biscuit hover:text-biscuit-dark"
+          }`}
+        >
+          <Heart className={`size-4 ${wishlisted ? "fill-current" : ""}`} />
+        </button>
+      </div>
+
       <Link
         to={`/products/${product.id}`}
         className="block overflow-hidden rounded-xl bg-biscuit-light"

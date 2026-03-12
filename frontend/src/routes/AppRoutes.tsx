@@ -6,6 +6,10 @@ import AuthPage from "../pages/AuthPage";
 import ProfilePage from "../pages/ProfilePage";
 import CartPage from "../pages/CartPage";
 import CheckoutPage from "../pages/CheckoutPage";
+import OrderSuccessPage from "../pages/OrderSuccessPage";
+import OrdersPage from "../pages/OrdersPage";
+import OrderDetailsPage from "../pages/OrderDetailsPage";
+import WishlistPage from "../pages/WishlistPage";
 
 const ProductsPage = lazy(() => import("../pages/ProductsPage"));
 const ProductDetailsPage = lazy(() => import("../pages/ProductDetailsPage"));
@@ -22,6 +26,10 @@ export default function AppRoutes() {
           <Route path="/products/:id" element={<ProductDetailsPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/order-success" element={<OrderSuccessPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/orders/:id" element={<OrderDetailsPage />} />
+          <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>

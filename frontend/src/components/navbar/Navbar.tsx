@@ -1,13 +1,18 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Search, ShoppingCart, User } from "lucide-react";
+import { Heart, Search, ShoppingCart, User } from "lucide-react";
 
 import { useAuth } from "../../hooks/useAuth";
+import { useCartCount } from "../../hooks/useCartCount";
+import { useWishlist } from "../../hooks/useWishlist";
+import CartBadge from "./CartBadge";
 import { Skeleton } from "../ui/skeleton";
 
 export default function Navbar() {
   const { data: user, isLoading } = useAuth();
+  const { count } = useCartCount();
+  const { data: wishlist = [] } = useWishlist();
   const navigate = useNavigate();
   const location = useLocation();
   const [search, setSearch] = useState("");
@@ -61,11 +66,28 @@ export default function Navbar() {
           </Link>
 
           <Link
+            to="/wishlist"
+            className="hidden items-center gap-2 transition hover:text-biscuit-dark sm:flex"
+          >
+            <Heart className="size-4" />
+            Wishlist
+            <CartBadge count={wishlist.length} />
+          </Link>
+
+          <Link
+            to="/orders"
+            className="hidden items-center gap-2 transition hover:text-biscuit-dark sm:flex"
+          >
+            Orders
+          </Link>
+
+          <Link
             to="/cart"
             className="hidden items-center gap-2 transition hover:text-biscuit-dark sm:flex"
           >
             <ShoppingCart className="size-4" />
             Cart
+            <CartBadge count={count} />
           </Link>
 
           {isLoading ? (

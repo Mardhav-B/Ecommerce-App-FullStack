@@ -1,4 +1,5 @@
 import api from "@/api/axios";
+import axios from "axios";
 
 export interface ShippingFormValues {
   name: string;
@@ -44,26 +45,46 @@ export async function createOrder() {
   return response.data;
 }
 
-export async function createCheckoutSession(orderId: string) {
+export async function createCheckoutSession(orderId?: string) {
   try {
     const response = await api.post<CheckoutSessionResponse>(
       "/payment/create-checkout-session",
-      { orderId },
+      orderId ? { orderId } : undefined,
       {
         headers: getAuthHeaders(),
       },
     );
 
     return response.data;
-  } catch {
-    const response = await api.post<CheckoutSessionResponse>(
-      "/payment/checkout",
-      { orderId },
-      {
-        headers: getAuthHeaders(),
-      },
-    );
+  } catch (primaryError) {
+    try {
+      const response = await api.post<CheckoutSessionResponse>(
+        "/payment/checkout",
+        undefined,
+        {
+          headers: getAuthHeaders(),
+        },
+      );
 
-    return response.data;
+      return response.data;
+    } catch (fallbackError) {
+      if (axios.isAxiosError(fallbackError)) {
+        const message =
+          typeof fallbackError.response?.data?.message === "string"
+            ? fallbackError.response.data.message
+            : fallbackError.message;
+        throw new Error(message);
+      }
+
+      if (axios.isAxiosError(primaryError)) {
+        const message =
+          typeof primaryError.response?.data?.message === "string"
+            ? primaryError.response.data.message
+            : primaryError.message;
+        throw new Error(message);
+      }
+
+      throw fallbackError;
+    }
   }
 }

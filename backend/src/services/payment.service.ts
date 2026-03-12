@@ -24,6 +24,8 @@ function toStripeLineItems(items: ItemWithProduct[]) {
 }
 
 export const createCheckoutSession = async (userId: string, orderId?: string) => {
+  const frontendUrl =
+    process.env.FRONTEND_URL || "https://ecommerce-app-full-stack-lemon.vercel.app";
   let lineItems;
 
   if (orderId) {
@@ -65,8 +67,8 @@ export const createCheckoutSession = async (userId: string, orderId?: string) =>
     payment_method_types: ["card"],
     line_items: lineItems,
     mode: "payment",
-    success_url: `${process.env.FRONTEND_URL}/success`,
-    cancel_url: `${process.env.FRONTEND_URL}/cancel`,
+    success_url: `${frontendUrl}/order-success?orderId=${orderId || ""}`,
+    cancel_url: `${frontendUrl}/checkout`,
     metadata: {
       userId,
       orderId: orderId || "",

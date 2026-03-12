@@ -36,8 +36,8 @@ export default function CheckoutPage() {
   const handleCheckout = async (values: ShippingFormValues) => {
     try {
       setCheckoutError(null);
-      const session = await checkoutMutation.mutateAsync(values);
-      window.location.href = session.url;
+      const result = await checkoutMutation.mutateAsync(values);
+      window.location.href = result.session.url;
     } catch (checkoutFailure) {
       setCheckoutError(
         checkoutFailure instanceof Error
