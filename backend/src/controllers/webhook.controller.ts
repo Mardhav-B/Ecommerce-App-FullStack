@@ -17,6 +17,26 @@ export const stripeWebhook = async (req: Request, res: Response) => {
     const session = event.data.object;
 
     const userId = session.metadata.userId;
+    const orderId = session.metadata.orderId;
+
+    if (orderId) {
+      await prisma.order.update({
+        where: { id: orderId },
+        data: { status: "PAID" },
+      });
+
+      const cart = await prisma.cart.findUnique({
+        where: { userId },
+      });
+
+      if (cart) {
+        await prisma.cartItem.deleteMany({
+          where: { cartId: cart.id },
+        });
+      }
+
+      return res.json({ received: true });
+    }
 
     const cart = await prisma.cart.findUnique({
       where: { userId },

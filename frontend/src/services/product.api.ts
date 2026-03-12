@@ -1,5 +1,6 @@
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+  import.meta.env.VITE_API_URL ||
+  "https://ecommerce-app-fullstack.onrender.com/api";
 
 export type ProductSort = "price_low_high" | "price_high_low" | "newest";
 

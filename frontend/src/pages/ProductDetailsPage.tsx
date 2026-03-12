@@ -11,6 +11,12 @@ import { useProduct } from "@/hooks/useProduct";
 import { useProducts } from "@/hooks/useProducts";
 import { addToCart } from "@/services/product.api";
 
+const SIZE_CATEGORIES = new Set([
+  "mens-shirts",
+  "mens-shoes",
+  "mens-watches",
+]);
+
 export default function ProductDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -48,7 +54,15 @@ export default function ProductDetailsPage() {
     },
   });
 
-  const sizes = product?.sizes?.length ? product.sizes : ["S", "M", "L", "XL"];
+  const shouldShowSizes = Boolean(
+    product?.categoryName && SIZE_CATEGORIES.has(product.categoryName),
+  );
+  const sizes =
+    shouldShowSizes && product?.sizes?.length
+      ? product.sizes
+      : shouldShowSizes
+        ? ["S", "M", "L", "XL"]
+        : [];
 
   useEffect(() => {
     setQuantity(1);

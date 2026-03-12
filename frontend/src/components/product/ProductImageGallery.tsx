@@ -17,12 +17,13 @@ function ProductImageGalleryComponent({
 
   return (
     <div className="space-y-4">
-      <div className="overflow-hidden rounded-3xl bg-biscuit-light">
+      <div className="overflow-hidden rounded-3xl border border-biscuit-light bg-white">
         <div className="group relative aspect-square overflow-hidden">
           <img
             src={activeImage}
             alt={alt}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-150"
+            loading="eager"
+            className="h-full w-full object-contain bg-white p-6 transition-transform duration-500 group-hover:scale-125"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/5 to-transparent" />
         </div>
@@ -44,7 +45,7 @@ function ProductImageGalleryComponent({
               src={image}
               alt={`${alt} thumbnail ${index + 1}`}
               loading="lazy"
-              className="aspect-square h-full w-full object-cover"
+              className="aspect-square h-full w-full object-contain bg-white p-2"
             />
           </button>
         ))}

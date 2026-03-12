@@ -7,7 +7,7 @@ import {
 
 export const placeOrder = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.userId;
+    const userId = (req as any).user.id;
 
     const order = await createOrder(userId);
 
@@ -21,7 +21,7 @@ export const placeOrder = async (req: Request, res: Response) => {
 
 export const fetchOrders = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.userId;
+    const userId = (req as any).user.id;
 
     const orders = await getOrders(userId);
 

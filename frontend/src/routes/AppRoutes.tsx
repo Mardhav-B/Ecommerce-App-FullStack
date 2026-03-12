@@ -4,6 +4,8 @@ import Navbar from "../components/navbar/Navbar";
 import LandingPage from "../pages/LandingPage";
 import AuthPage from "../pages/AuthPage";
 import ProfilePage from "../pages/ProfilePage";
+import CartPage from "../pages/CartPage";
+import CheckoutPage from "../pages/CheckoutPage";
 
 const ProductsPage = lazy(() => import("../pages/ProductsPage"));
 const ProductDetailsPage = lazy(() => import("../pages/ProductDetailsPage"));
@@ -18,6 +20,8 @@ export default function AppRoutes() {
 
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/products/:id" element={<ProductDetailsPage />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>
