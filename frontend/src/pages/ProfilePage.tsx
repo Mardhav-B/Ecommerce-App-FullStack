@@ -3,8 +3,11 @@ import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MapPinHouse, Plus, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 import { useAuth } from "../hooks/useAuth";
+import { useOrders } from "../hooks/useOrders";
 import { logoutUser, saveAddress } from "../services/auth.api";
 import { Skeleton } from "../components/ui/skeleton";
 
@@ -16,14 +19,30 @@ interface AddressForm {
   zipCode: string;
 }
 
+const addressSchema = z.object({
+  street: z.string().min(5, "Street address is required"),
+  city: z.string().min(2, "City is required"),
+  state: z.string().min(2, "State is required"),
+  country: z.string().min(2, "Country is required"),
+  zipCode: z.string().min(4, "ZIP code is required"),
+});
+
 export default function ProfilePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: user, isLoading, isError } = useAuth();
+  const { data: orders = [] } = useOrders();
   const [visible, setVisible] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
-  const { register, handleSubmit, reset } = useForm<AddressForm>();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<AddressForm>({
+    resolver: zodResolver(addressSchema),
+  });
 
   const addressMutation = useMutation({
     mutationFn: saveAddress,
@@ -174,6 +193,9 @@ export default function ProfilePage() {
                     placeholder={label}
                     className="h-12 w-full rounded-2xl border border-biscuit/25 bg-[#fffaf6] px-4 outline-none transition focus:border-biscuit"
                   />
+                  {errors[field] ? (
+                    <p className="mt-1 text-xs text-red-600">{errors[field]?.message}</p>
+                  ) : null}
                 </label>
               ))}
 
@@ -193,6 +215,47 @@ export default function ProfilePage() {
             </form>
           </section>
         </div>
+
+        <section className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8">
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold text-slate-900">Recent Orders</h2>
+            <p className="text-sm text-slate-500">
+              Quick access to the latest orders from your account.
+            </p>
+          </div>
+
+          {orders.length === 0 ? (
+            <div className="rounded-[1.5rem] border border-dashed border-biscuit-light bg-biscuit-light/20 p-6 text-sm text-slate-500">
+              No orders yet.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {orders.slice(0, 3).map((order) => (
+                <div
+                  key={order.id}
+                  className="rounded-[1.25rem] border border-biscuit-light bg-[linear-gradient(180deg,#fff_0%,#fcf3ea_100%)] p-4"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-medium text-slate-900">{order.id}</p>
+                      <p className="text-xs text-slate-500">
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-biscuit-dark">
+                        ${order.totalPrice.toFixed(2)}
+                      </p>
+                      <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                        {order.status}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );

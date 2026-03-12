@@ -1,0 +1,69 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Heart } from "lucide-react";
+
+import WishlistCard from "@/components/wishlist/WishlistCard";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useWishlist } from "@/hooks/useWishlist";
+import { addToCart } from "@/services/product.api";
+
+export default function WishlistPage() {
+  const queryClient = useQueryClient();
+  const {
+    data: wishlist = [],
+    isLoading,
+    removeFromWishlist,
+    isRemovingFromWishlist,
+  } = useWishlist();
+
+  const cartMutation = useMutation({
+    mutationFn: ({ productId }: { productId: string }) => addToCart(productId, 1),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+  });
+
+  return (
+    <main className="min-h-screen bg-[linear-gradient(180deg,#fcf5ee_0%,#fff_28%)] px-4 py-10 md:px-6">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-8 space-y-2">
+          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-biscuit-dark">
+            Wishlist
+          </p>
+          <h1 className="text-3xl font-semibold text-slate-900 md:text-4xl">
+            Saved products for later.
+          </h1>
+        </div>
+
+        {isLoading ? (
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <Skeleton key={index} className="h-96 rounded-xl" />
+            ))}
+          </div>
+        ) : wishlist.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-biscuit-light bg-white p-10 text-center shadow-sm">
+            <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-biscuit-light text-biscuit-dark">
+              <Heart className="size-7" />
+            </div>
+            <h2 className="mt-5 text-2xl font-semibold text-slate-900">Wishlist is empty</h2>
+            <p className="mt-2 text-sm text-slate-500">
+              Save products from the listing page and they will show up here.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {wishlist.map((item) => (
+              <WishlistCard
+                key={item.id}
+                item={item}
+                onRemove={removeFromWishlist}
+                onAddToCart={(productId) => cartMutation.mutate({ productId })}
+                disabled={isRemovingFromWishlist || cartMutation.isPending}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}

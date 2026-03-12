@@ -6,6 +6,7 @@ import { authenticate } from "../middleware/auth.middleware";
 const router = Router();
 
 router.post("/checkout", authenticate, checkout);
+router.post("/create-checkout-session", authenticate, checkout);
 router.post("/webhook", stripeWebhook);
 
 export default router;

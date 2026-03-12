@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { LockKeyhole, Mail, User2 } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 import { loginUser, registerUser } from "../services/auth.api";
 
@@ -12,17 +14,35 @@ interface AuthForm {
   password: string;
 }
 
+const loginSchema = z.object({
+  email: z.email("Enter a valid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+const registerSchema = loginSchema.extend({
+  name: z.string().min(2, "Full name is required"),
+});
+
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { register, handleSubmit, reset } = useForm<AuthForm>();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<AuthForm>({
+    resolver: zodResolver(isLogin ? loginSchema : registerSchema),
+  });
 
   const onSubmit = async (data: AuthForm) => {
     try {
       setErrorMessage(null);
+      setIsSubmitting(true);
 
       if (isLogin) {
         const result = await loginUser({
@@ -50,6 +70,8 @@ export default function AuthPage() {
       setErrorMessage(
         error instanceof Error ? error.message : "Authentication failed",
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -109,6 +131,7 @@ export default function AuthPage() {
                       className="h-12 w-full bg-transparent px-3 outline-none"
                     />
                   </div>
+                  {errors.name ? <p className="mt-1 text-xs text-red-600">{errors.name.message}</p> : null}
                 </label>
               ) : null}
 
@@ -124,6 +147,7 @@ export default function AuthPage() {
                     className="h-12 w-full bg-transparent px-3 outline-none"
                   />
                 </div>
+                {errors.email ? <p className="mt-1 text-xs text-red-600">{errors.email.message}</p> : null}
               </label>
 
               <label className="block">
@@ -139,6 +163,7 @@ export default function AuthPage() {
                     className="h-12 w-full bg-transparent px-3 outline-none"
                   />
                 </div>
+                {errors.password ? <p className="mt-1 text-xs text-red-600">{errors.password.message}</p> : null}
               </label>
 
               {errorMessage ? (
@@ -147,8 +172,17 @@ export default function AuthPage() {
                 </div>
               ) : null}
 
-              <button className="w-full rounded-2xl bg-biscuit py-3 font-semibold text-white transition hover:bg-biscuit-dark">
-                {isLogin ? "Login" : "Register"}
+              <button
+                disabled={isSubmitting}
+                className="w-full rounded-2xl bg-biscuit py-3 font-semibold text-white transition hover:bg-biscuit-dark disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {isSubmitting
+                  ? isLogin
+                    ? "Logging in..."
+                    : "Registering..."
+                  : isLogin
+                    ? "Login"
+                    : "Register"}
               </button>
             </form>
 

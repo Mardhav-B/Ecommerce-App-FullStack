@@ -13,14 +13,27 @@ import bannerRoutes from "./routes/banner.routes";
 dotenv.config();
 
 const app = express();
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "https://ecommerce-app-full-stack-lemon.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:3000",
+].filter(Boolean) as string[];
 
 app.use(
   cors({
-    origin: [
-      process.env.FRONTEND_URL || "http://localhost:3000",
-      "http://localhost:5173",
-      "http://localhost:3000",
-    ],
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin);
+
+      callback(isAllowed ? null : new Error("Not allowed by CORS"), isAllowed);
+    },
     credentials: true,
   }),
 );

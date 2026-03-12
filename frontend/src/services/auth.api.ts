@@ -63,6 +63,9 @@ export const getProfile = async () => {
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("accessToken");
+    }
     const text = await res.text();
     throw new Error(`Failed to fetch profile: ${res.status} ${text}`);
   }
@@ -96,12 +99,14 @@ export const saveAddress = async (data: SaveAddressInput): Promise<SavedAddress>
 export const logoutUser = async () => {
   const token = localStorage.getItem("accessToken");
 
-  await fetch(`${API_URL}/auth/logout`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  if (token) {
+    await fetch(`${API_URL}/auth/logout`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
 
   localStorage.removeItem("accessToken");
 };

@@ -38,6 +38,9 @@ export const getProducts = async (
     where,
     skip,
     take: limit,
+    include: {
+      category: true,
+    },
     orderBy: {
       createdAt: "desc",
     },
@@ -56,6 +59,9 @@ export const getProducts = async (
 export const getProductById = async (id: string) => {
   return prisma.product.findUnique({
     where: { id },
+    include: {
+      category: true,
+    },
   });
 };
 
