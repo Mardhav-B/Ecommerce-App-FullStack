@@ -1,5 +1,23 @@
 import prisma from "../config/prisma";
 
+interface ProductCreateInput {
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  imageUrl?: string;
+  categoryId?: string;
+}
+
+interface ProductUpdateInput {
+  name?: string;
+  description?: string;
+  price?: number;
+  stock?: number;
+  imageUrl?: string;
+  categoryId?: string;
+}
+
 export const getProducts = async (
   search?: string,
   page: number = 1,
@@ -41,11 +59,11 @@ export const getProductById = async (id: string) => {
   });
 };
 
-export const createProduct = async (data: any) => {
+export const createProduct = async (data: ProductCreateInput) => {
   return prisma.product.create({ data });
 };
 
-export const updateProduct = async (id: string, data: any) => {
+export const updateProduct = async (id: string, data: ProductUpdateInput) => {
   return prisma.product.update({
     where: { id },
     data,
