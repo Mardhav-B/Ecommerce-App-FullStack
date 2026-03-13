@@ -67,7 +67,7 @@ export const createCheckoutSession = async (userId: string, orderId?: string) =>
     payment_method_types: ["card"],
     line_items: lineItems,
     mode: "payment",
-    success_url: `${frontendUrl}/order-success?orderId=${orderId || ""}`,
+    success_url: `${frontendUrl}/orders?payment=success&orderId=${orderId || ""}`,
     cancel_url: `${frontendUrl}/checkout`,
     metadata: {
       userId,

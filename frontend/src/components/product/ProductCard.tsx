@@ -62,7 +62,8 @@ function ProductCardComponent({
           src={product.imageUrl}
           alt={product.name}
           loading={lazyImage ? "lazy" : "eager"}
-          className="aspect-square h-44 w-full bg-white object-contain p-3 transition-transform duration-500 group-hover:scale-[1.03]"
+          decoding="async"
+          className="aspect-square h-44 w-full bg-white object-cover transition-transform duration-500 group-hover:scale-[1.04]"
         />
       </Link>
 

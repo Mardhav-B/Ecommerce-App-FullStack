@@ -23,7 +23,8 @@ function ProductImageGalleryComponent({
             src={activeImage}
             alt={alt}
             loading="eager"
-            className="h-full w-full object-contain bg-white p-6 transition-transform duration-500 group-hover:scale-125"
+            decoding="sync"
+            className="h-full w-full object-cover bg-white transition-transform duration-500 group-hover:scale-110"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/5 to-transparent" />
         </div>
@@ -44,7 +45,8 @@ function ProductImageGalleryComponent({
             <img
               src={image}
               alt={`${alt} thumbnail ${index + 1}`}
-              className="aspect-square h-full w-full object-contain bg-white p-2"
+              decoding="async"
+              className="aspect-square h-full w-full object-cover bg-white"
             />
           </button>
         ))}

@@ -1,9 +1,21 @@
+import { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
+
 import OrderCard from "@/components/order/OrderCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrders } from "@/hooks/useOrders";
 
 export default function OrdersPage() {
-  const { data: orders = [], isLoading, isError, error } = useOrders();
+  const [searchParams] = useSearchParams();
+  const isPaymentReturn = searchParams.get("payment") === "success";
+  const requestedOrderId = searchParams.get("orderId");
+  const { data: orders = [], isLoading, isError, error } = useOrders({
+    refetchInterval: isPaymentReturn ? 2500 : false,
+  });
+  const highlightedOrder = useMemo(
+    () => (requestedOrderId ? orders.find((order) => order.id === requestedOrderId) : null),
+    [orders, requestedOrderId],
+  );
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#fcf5ee_0%,#fff_28%)] px-4 py-10 md:px-6">
@@ -16,6 +28,14 @@ export default function OrdersPage() {
             Review your order history.
           </h1>
         </div>
+
+        {isPaymentReturn ? (
+          <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 p-5 text-sm text-green-800">
+            {highlightedOrder?.status === "PAID"
+              ? `Payment completed successfully. Order ${highlightedOrder.id} is now confirmed.`
+              : "Payment completed. Your latest order is syncing and will update here shortly."}
+          </div>
+        ) : null}
 
         {isError ? (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
