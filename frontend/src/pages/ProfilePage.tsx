@@ -5,7 +5,6 @@ import { MapPinHouse, Plus, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-
 import { useAuth } from "../hooks/useAuth";
 import { useOrders } from "../hooks/useOrders";
 import { logoutUser, saveAddress } from "../services/auth.api";
@@ -194,7 +193,9 @@ export default function ProfilePage() {
                     className="h-12 w-full rounded-2xl border border-biscuit/25 bg-[#fffaf6] px-4 outline-none transition focus:border-biscuit"
                   />
                   {errors[field] ? (
-                    <p className="mt-1 text-xs text-red-600">{errors[field]?.message}</p>
+                    <p className="mt-1 text-xs text-red-600">
+                      {errors[field]?.message}
+                    </p>
                   ) : null}
                 </label>
               ))}
@@ -218,7 +219,9 @@ export default function ProfilePage() {
 
         <section className="rounded-[2rem] bg-white p-6 shadow-sm md:p-8">
           <div className="mb-6">
-            <h2 className="text-2xl font-semibold text-slate-900">Recent Orders</h2>
+            <h2 className="text-2xl font-semibold text-slate-900">
+              Recent Orders
+            </h2>
             <p className="text-sm text-slate-500">
               Quick access to the latest orders from your account.
             </p>
@@ -237,7 +240,9 @@ export default function ProfilePage() {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-sm font-medium text-slate-900">{order.id}</p>
+                      <p className="text-sm font-medium text-slate-900">
+                        {order.id}
+                      </p>
                       <p className="text-xs text-slate-500">
                         {new Date(order.createdAt).toLocaleDateString()}
                       </p>

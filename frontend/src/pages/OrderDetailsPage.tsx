@@ -1,6 +1,5 @@
 import { Truck } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-
 import OrderItem from "@/components/order/OrderItem";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";

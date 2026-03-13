@@ -74,30 +74,34 @@ export default function Navbar() {
             Products
           </Link>
 
-          <Link
-            to="/wishlist"
-            className="hidden items-center gap-2 transition hover:text-biscuit-dark sm:flex"
-          >
-            <Heart className="size-4" />
-            Wishlist
-            <CartBadge count={wishlist.length} />
-          </Link>
+          {user ? (
+            <>
+              <Link
+                to="/wishlist"
+                className="hidden items-center gap-2 transition hover:text-biscuit-dark sm:flex"
+              >
+                <Heart className="size-4" />
+                Wishlist
+                <CartBadge count={wishlist.length} />
+              </Link>
 
-          <Link
-            to="/orders"
-            className="hidden items-center gap-2 transition hover:text-biscuit-dark sm:flex"
-          >
-            Orders
-          </Link>
+              <Link
+                to="/orders"
+                className="hidden items-center gap-2 transition hover:text-biscuit-dark sm:flex"
+              >
+                Orders
+              </Link>
 
-          <Link
-            to="/cart"
-            className="hidden items-center gap-2 transition hover:text-biscuit-dark sm:flex"
-          >
-            <ShoppingCart className="size-4" />
-            Cart
-            <CartBadge count={count} />
-          </Link>
+              <Link
+                to="/cart"
+                className="hidden items-center gap-2 transition hover:text-biscuit-dark sm:flex"
+              >
+                <ShoppingCart className="size-4" />
+                Cart
+                <CartBadge count={count} />
+              </Link>
+            </>
+          ) : null}
 
           {isLoading ? (
             <Skeleton className="h-9 w-9 rounded-full" />
@@ -120,24 +124,28 @@ export default function Navbar() {
         </div>
 
         <div className="ml-auto flex items-center gap-2 md:hidden">
-          <Link
-            to="/wishlist"
-            className="relative inline-flex size-10 items-center justify-center rounded-full bg-white shadow-sm"
-          >
-            <Heart className="size-4 text-slate-700" />
-            <span className="absolute right-0 top-0">
-              <CartBadge count={wishlist.length} />
-            </span>
-          </Link>
-          <Link
-            to="/cart"
-            className="relative inline-flex size-10 items-center justify-center rounded-full bg-white shadow-sm"
-          >
-            <ShoppingCart className="size-4 text-slate-700" />
-            <span className="absolute right-0 top-0">
-              <CartBadge count={count} />
-            </span>
-          </Link>
+          {user ? (
+            <>
+              <Link
+                to="/wishlist"
+                className="relative inline-flex size-10 items-center justify-center rounded-full bg-white shadow-sm"
+              >
+                <Heart className="size-4 text-slate-700" />
+                <span className="absolute right-0 top-0">
+                  <CartBadge count={wishlist.length} />
+                </span>
+              </Link>
+              <Link
+                to="/cart"
+                className="relative inline-flex size-10 items-center justify-center rounded-full bg-white shadow-sm"
+              >
+                <ShoppingCart className="size-4 text-slate-700" />
+                <span className="absolute right-0 top-0">
+                  <CartBadge count={count} />
+                </span>
+              </Link>
+            </>
+          ) : null}
           <button
             type="button"
             onClick={toggleMobileMenu}
@@ -181,33 +189,37 @@ export default function Navbar() {
             >
               Products
             </Link>
-            <Link
-              to="/wishlist"
-              className="flex items-center justify-between rounded-2xl border border-biscuit-light px-4 py-3 transition hover:border-biscuit hover:text-biscuit-dark"
-            >
-              <span className="flex items-center gap-2">
-                <Heart className="size-4" />
-                Wishlist
-              </span>
-              <CartBadge count={wishlist.length} />
-            </Link>
-            <Link
-              to="/orders"
-              className="flex items-center gap-2 rounded-2xl border border-biscuit-light px-4 py-3 transition hover:border-biscuit hover:text-biscuit-dark"
-            >
-              <Package className="size-4" />
-              Orders
-            </Link>
-            <Link
-              to="/cart"
-              className="flex items-center justify-between rounded-2xl border border-biscuit-light px-4 py-3 transition hover:border-biscuit hover:text-biscuit-dark"
-            >
-              <span className="flex items-center gap-2">
-                <ShoppingCart className="size-4" />
-                Cart
-              </span>
-              <CartBadge count={count} />
-            </Link>
+            {user ? (
+              <>
+                <Link
+                  to="/wishlist"
+                  className="flex items-center justify-between rounded-2xl border border-biscuit-light px-4 py-3 transition hover:border-biscuit hover:text-biscuit-dark"
+                >
+                  <span className="flex items-center gap-2">
+                    <Heart className="size-4" />
+                    Wishlist
+                  </span>
+                  <CartBadge count={wishlist.length} />
+                </Link>
+                <Link
+                  to="/orders"
+                  className="flex items-center gap-2 rounded-2xl border border-biscuit-light px-4 py-3 transition hover:border-biscuit hover:text-biscuit-dark"
+                >
+                  <Package className="size-4" />
+                  Orders
+                </Link>
+                <Link
+                  to="/cart"
+                  className="flex items-center justify-between rounded-2xl border border-biscuit-light px-4 py-3 transition hover:border-biscuit hover:text-biscuit-dark"
+                >
+                  <span className="flex items-center gap-2">
+                    <ShoppingCart className="size-4" />
+                    Cart
+                  </span>
+                  <CartBadge count={count} />
+                </Link>
+              </>
+            ) : null}
             {isLoading ? (
               <Skeleton className="h-12 rounded-2xl" />
             ) : !user ? (

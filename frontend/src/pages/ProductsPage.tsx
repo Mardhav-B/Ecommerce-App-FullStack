@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-
 import ProductFilters, {
   type FilterState,
 } from "@/components/product/ProductFilters";
@@ -23,7 +22,8 @@ export default function ProductsPage() {
     minPrice: Number(searchParams.get("minPrice") ?? defaultFilters.minPrice),
     maxPrice: Number(searchParams.get("maxPrice") ?? defaultFilters.maxPrice),
     search: searchParams.get("search") ?? "",
-    sort: (searchParams.get("sort") as FilterState["sort"]) ?? defaultFilters.sort,
+    sort:
+      (searchParams.get("sort") as FilterState["sort"]) ?? defaultFilters.sort,
   }));
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
@@ -51,12 +51,14 @@ export default function ProductsPage() {
 
   useEffect(() => {
     setFilters({
-      categories: searchParams.get("category")?.split(",").filter(Boolean) ?? [],
+      categories:
+        searchParams.get("category")?.split(",").filter(Boolean) ?? [],
       minPrice: Number(searchParams.get("minPrice") ?? defaultFilters.minPrice),
       maxPrice: Number(searchParams.get("maxPrice") ?? defaultFilters.maxPrice),
       search: searchParams.get("search") ?? "",
       sort:
-        (searchParams.get("sort") as FilterState["sort"]) ?? defaultFilters.sort,
+        (searchParams.get("sort") as FilterState["sort"]) ??
+        defaultFilters.sort,
     });
   }, [searchParams]);
 
@@ -123,13 +125,16 @@ export default function ProductsPage() {
           <section className="space-y-6">
             <div className="flex items-center justify-between">
               <p className="text-sm text-slate-500">
-                {products.length} product{products.length === 1 ? "" : "s"} loaded
+                {products.length} product{products.length === 1 ? "" : "s"}{" "}
+                loaded
               </p>
             </div>
 
             {isError ? (
               <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
-                {error instanceof Error ? error.message : "Unable to load products."}
+                {error instanceof Error
+                  ? error.message
+                  : "Unable to load products."}
               </div>
             ) : null}
 
@@ -149,7 +154,12 @@ export default function ProductsPage() {
             <div ref={sentinelRef} className="h-10 w-full" />
 
             {isFetchingNextPage ? (
-              <ProductGrid products={[]} isLoading skeletonCount={4} lazyImages />
+              <ProductGrid
+                products={[]}
+                isLoading
+                skeletonCount={4}
+                lazyImages
+              />
             ) : null}
           </section>
         </div>

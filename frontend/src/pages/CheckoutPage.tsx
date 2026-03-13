@@ -1,6 +1,5 @@
 import { Navigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
-
 import CheckoutForm from "@/components/checkout/CheckoutForm";
 import OrderSummary from "@/components/checkout/OrderSummary";
 import CartEmpty from "@/components/cart/CartEmpty";
