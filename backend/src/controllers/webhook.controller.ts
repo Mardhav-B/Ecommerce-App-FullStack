@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import Stripe from "stripe";
 import stripe from "../config/stripe";
 import prisma from "../config/prisma";
 
@@ -11,13 +12,29 @@ interface CartItemWithProduct {
 }
 
 export const stripeWebhook = async (req: Request, res: Response) => {
-  const event = req.body;
+  const sig = req.headers["stripe-signature"] as string;
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+
+  let event: Stripe.Event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err: any) {
+    console.log(`Webhook signature verification failed.`, err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
 
   if (event.type === "checkout.session.completed") {
-    const session = event.data.object;
+    const session = event.data.object as Stripe.Checkout.Session;
 
-    const userId = session.metadata.userId;
-    const orderId = session.metadata.orderId;
+    const metadata = session.metadata;
+    if (!metadata) {
+      console.log("No metadata in session");
+      return res.status(400).json({ error: "No metadata" });
+    }
+
+    const userId = metadata.userId;
+    const orderId = metadata.orderId;
 
     if (orderId) {
       await prisma.order.update({
