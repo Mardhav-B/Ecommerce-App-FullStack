@@ -1,6 +1,4 @@
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://ecommerce-app-fullstack.onrender.com/api";
+import api from "@/api/axios";
 
 export interface SavedAddress {
   id: string;
@@ -20,17 +18,8 @@ export interface SaveAddressInput {
 }
 
 export const loginUser = async (data: any) => {
-  const res = await fetch(`${API_URL}/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!res.ok) throw new Error("Login failed");
-
-  const result = await res.json();
+  const res = await api.post("/auth/login", data);
+  const result = res.data;
 
   localStorage.setItem("accessToken", result.accessToken);
 
@@ -38,17 +27,8 @@ export const loginUser = async (data: any) => {
 };
 
 export const registerUser = async (data: any) => {
-  const res = await fetch(`${API_URL}/auth/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!res.ok) throw new Error("Register failed");
-
-  return res.json();
+  const res = await api.post("/auth/register", data);
+  return res.data;
 };
 
 export const getProfile = async () => {
@@ -56,22 +36,12 @@ export const getProfile = async () => {
 
   if (!token) throw new Error("No access token");
 
-  const res = await fetch(`${API_URL}/auth/profile`, {
+  const res = await api.get("/auth/profile", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-
-  if (!res.ok) {
-    if (res.status === 401) {
-      localStorage.removeItem("accessToken");
-    }
-    const text = await res.text();
-    throw new Error(`Failed to fetch profile: ${res.status} ${text}`);
-  }
-
-  const data = await res.json();
-  return data; 
+  return res.data; 
 };
 
 export const saveAddress = async (data: SaveAddressInput): Promise<SavedAddress> => {
@@ -79,29 +49,19 @@ export const saveAddress = async (data: SaveAddressInput): Promise<SavedAddress>
 
   if (!token) throw new Error("No access token");
 
-  const res = await fetch(`${API_URL}/auth/addresses`, {
-    method: "POST",
+  const res = await api.post<SavedAddress>("/auth/addresses", data, {
     headers: {
-      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(data),
   });
-
-  if (!res.ok) {
-    const payload = await res.json().catch(() => null);
-    throw new Error(payload?.message || "Failed to save address");
-  }
-
-  return res.json();
+  return res.data;
 };
 
 export const logoutUser = async () => {
   const token = localStorage.getItem("accessToken");
 
   if (token) {
-    await fetch(`${API_URL}/auth/logout`, {
-      method: "POST",
+    await api.post("/auth/logout", undefined, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

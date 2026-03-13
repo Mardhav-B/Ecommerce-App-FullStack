@@ -18,9 +18,15 @@ export default function WishlistPage() {
   } = useWishlist();
 
   const cartMutation = useMutation({
-    mutationFn: ({ productId }: { productId: string }) =>
+    mutationFn: ({
+      productId,
+    }: {
+      wishlistItemId: string;
+      productId: string;
+    }) =>
       addToCart(productId, 1),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      removeFromWishlist(variables.wishlistItemId);
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
   });
@@ -87,7 +93,9 @@ export default function WishlistPage() {
                 key={item.id}
                 item={item}
                 onRemove={removeFromWishlist}
-                onAddToCart={(productId) => cartMutation.mutate({ productId })}
+                onAddToCart={(wishlistItemId, productId) =>
+                  cartMutation.mutate({ wishlistItemId, productId })
+                }
                 disabled={isRemovingFromWishlist || cartMutation.isPending}
               />
             ))}
