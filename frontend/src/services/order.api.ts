@@ -48,6 +48,7 @@ export function saveCheckoutSnapshot(
       totalPrice: order.totalPrice,
       status: order.status,
       shipping,
+      initiatedAt: new Date().toISOString(),
     }),
   );
 }
@@ -57,6 +58,7 @@ export function getCheckoutSnapshot(): {
   totalPrice?: number;
   status?: string;
   shipping?: ShippingFormValues;
+  initiatedAt?: string;
 } | null {
   const raw = localStorage.getItem("latestOrderSummary");
 
@@ -70,10 +72,15 @@ export function getCheckoutSnapshot(): {
       totalPrice?: number;
       status?: string;
       shipping?: ShippingFormValues;
+      initiatedAt?: string;
     };
   } catch {
     return null;
   }
+}
+
+export function clearCheckoutSnapshot() {
+  localStorage.removeItem("latestOrderSummary");
 }
 
 export async function fetchOrders() {

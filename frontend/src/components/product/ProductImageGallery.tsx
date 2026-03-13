@@ -44,7 +44,6 @@ function ProductImageGalleryComponent({
             <img
               src={image}
               alt={`${alt} thumbnail ${index + 1}`}
-              loading="lazy"
               className="aspect-square h-full w-full object-contain bg-white p-2"
             />
           </button>

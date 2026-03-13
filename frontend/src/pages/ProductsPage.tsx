@@ -133,7 +133,12 @@ export default function ProductsPage() {
               </div>
             ) : null}
 
-            <ProductGrid products={products} isLoading={isLoading} skeletonCount={8} />
+            <ProductGrid
+              products={products}
+              isLoading={isLoading}
+              skeletonCount={8}
+              lazyImages
+            />
 
             {!isLoading && products.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-biscuit-light bg-white p-10 text-center text-slate-500">
@@ -144,7 +149,7 @@ export default function ProductsPage() {
             <div ref={sentinelRef} className="h-10 w-full" />
 
             {isFetchingNextPage ? (
-              <ProductGrid products={[]} isLoading skeletonCount={4} />
+              <ProductGrid products={[]} isLoading skeletonCount={4} lazyImages />
             ) : null}
           </section>
         </div>

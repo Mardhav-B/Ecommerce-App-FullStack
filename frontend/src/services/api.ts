@@ -23,6 +23,61 @@ export interface HeroBanner {
   imageUrl: string;
 }
 
+const CATEGORY_IMAGE_FALLBACKS: Record<string, string> = {
+  "mobile-accessories":
+    "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1200&q=90",
+};
+
+function isAbsoluteUrl(value: string) {
+  return /^https?:\/\//i.test(value);
+}
+
+function normalizeAssetUrl(
+  value?: string | null,
+  options: { width: number; quality: number } = { width: 1400, quality: 90 },
+) {
+  if (!value) {
+    return "";
+  }
+
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return "";
+  }
+
+  if (!isAbsoluteUrl(trimmed)) {
+    return trimmed;
+  }
+
+  const encoded = encodeURI(trimmed);
+
+  try {
+    const url = new URL(encoded);
+
+    if (url.hostname.includes("images.unsplash.com")) {
+      url.searchParams.set("auto", "format");
+      url.searchParams.set("fit", "crop");
+      url.searchParams.set("w", String(options.width));
+      url.searchParams.set("q", String(options.quality));
+      url.searchParams.set("dpr", "2");
+      return url.toString();
+    }
+
+    if (url.hostname.includes("images.pexels.com")) {
+      url.searchParams.set("auto", "compress");
+      url.searchParams.set("cs", "tinysrgb");
+      url.searchParams.set("w", String(options.width));
+      url.searchParams.set("dpr", "2");
+      return url.toString();
+    }
+
+    return url.toString();
+  } catch {
+    return encoded;
+  }
+}
+
 export const fetchCategories = async (): Promise<Category[]> => {
   try {
     const response = await fetch(`${API_BASE_URL}/categories`);
@@ -33,8 +88,22 @@ export const fetchCategories = async (): Promise<Category[]> => {
 
     const data = await response.json();
 
-    if (Array.isArray(data)) return data;
-    if (Array.isArray(data.categories)) return data.categories;
+    if (Array.isArray(data)) {
+      return data.map((category: Category) => ({
+        ...category,
+        imageUrl: normalizeAssetUrl(
+          category.imageUrl || CATEGORY_IMAGE_FALLBACKS[category.name],
+        ),
+      }));
+    }
+    if (Array.isArray(data.categories)) {
+      return data.categories.map((category: Category) => ({
+        ...category,
+        imageUrl: normalizeAssetUrl(
+          category.imageUrl || CATEGORY_IMAGE_FALLBACKS[category.name],
+        ),
+      }));
+    }
 
     return [];
   } catch (error) {
@@ -95,8 +164,18 @@ export const fetchHeroBanners = async (): Promise<HeroBanner[]> => {
 
     const data = await response.json();
 
-    if (Array.isArray(data)) return data;
-    if (Array.isArray(data.banners)) return data.banners;
+    if (Array.isArray(data)) {
+      return data.map((banner: HeroBanner) => ({
+        ...banner,
+        imageUrl: normalizeAssetUrl(banner.imageUrl, { width: 1800, quality: 92 }),
+      }));
+    }
+    if (Array.isArray(data.banners)) {
+      return data.banners.map((banner: HeroBanner) => ({
+        ...banner,
+        imageUrl: normalizeAssetUrl(banner.imageUrl, { width: 1800, quality: 92 }),
+      }));
+    }
 
     return [];
   } catch (error) {

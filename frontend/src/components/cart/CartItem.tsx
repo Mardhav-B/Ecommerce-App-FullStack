@@ -26,7 +26,6 @@ function CartItemComponent({
           <img
             src={item.product.imageUrl || "https://placehold.co/400x400/f6ede4/8b6b50?text=Product"}
             alt={item.product.name}
-            loading="lazy"
             className="h-32 w-full object-contain bg-white p-3"
           />
         </div>

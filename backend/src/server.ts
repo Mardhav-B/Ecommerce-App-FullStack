@@ -9,6 +9,7 @@ import orderRoutes from "./routes/order.routes";
 import paymentRoutes from "./routes/payment.routes";
 import categoryRoutes from "./routes/category.routes";
 import bannerRoutes from "./routes/banner.routes";
+import { stripeWebhook } from "./controllers/webhook.controller";
 
 dotenv.config();
 
@@ -39,6 +40,11 @@ app.use(
 );
 
 app.use(cookieParser());
+app.post(
+  "/api/payment/webhook",
+  express.raw({ type: "application/json" }),
+  stripeWebhook,
+);
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);

@@ -40,8 +40,7 @@ function SuggestedProductsComponent({
                 <img
                   src={product.imageUrl}
                   alt={product.name}
-                  loading="lazy"
-                  className="h-44 w-full rounded-xl object-cover"
+                  className="h-44 w-full rounded-xl bg-white object-contain p-3"
                 />
                 <h3 className="mt-4 line-clamp-2 font-medium text-slate-900">
                   {product.name}

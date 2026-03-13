@@ -77,6 +77,65 @@ interface RawProductsResponse {
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=80";
+const CATEGORY_IMAGE_FALLBACKS: Record<string, string> = {
+  "mobile-accessories":
+    "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1200&q=90",
+};
+
+function isAbsoluteUrl(value: string) {
+  return /^https?:\/\//i.test(value);
+}
+
+function normalizeAssetUrl(
+  value?: string | null,
+  options: { width: number; quality: number } = { width: 1200, quality: 90 },
+) {
+  if (!value) {
+    return FALLBACK_IMAGE;
+  }
+
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return FALLBACK_IMAGE;
+  }
+
+  if (!isAbsoluteUrl(trimmed)) {
+    return trimmed;
+  }
+
+  const encoded = encodeURI(trimmed);
+
+  try {
+    const url = new URL(encoded);
+
+    if (url.hostname.includes("images.unsplash.com")) {
+      url.searchParams.set("auto", "format");
+      url.searchParams.set("fit", "crop");
+      url.searchParams.set("w", String(options.width));
+      url.searchParams.set("q", String(options.quality));
+      url.searchParams.set("dpr", "2");
+      return url.toString();
+    }
+
+    if (url.hostname.includes("images.pexels.com")) {
+      url.searchParams.set("auto", "compress");
+      url.searchParams.set("cs", "tinysrgb");
+      url.searchParams.set("w", String(options.width));
+      url.searchParams.set("dpr", "2");
+      return url.toString();
+    }
+
+    if (url.hostname.includes("dummyjson.com")) {
+      url.searchParams.set("imwidth", String(options.width));
+      return url.toString();
+    }
+
+    return url.toString();
+  } catch {
+    return encoded;
+  }
+}
 
 function clampRating(value?: number) {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -100,9 +159,9 @@ function extractCategoryName(category?: ProductCategoryRef | string | null) {
 
 function normalizeImages(product: RawProduct) {
   const sourceImages = Array.isArray(product.images)
-    ? product.images.filter(Boolean)
+    ? product.images.filter(Boolean).map((image) => normalizeAssetUrl(image))
     : [];
-  const primaryImage = product.imageUrl || sourceImages[0] || FALLBACK_IMAGE;
+  const primaryImage = normalizeAssetUrl(product.imageUrl) || sourceImages[0] || FALLBACK_IMAGE;
   const merged = [primaryImage, ...sourceImages].filter(Boolean);
   const uniqueImages = Array.from(new Set(merged));
 
@@ -260,10 +319,22 @@ export async function fetchCategories(): Promise<Category[]> {
   const data = (await response.json()) as Category[] | { categories?: Category[] };
 
   if (Array.isArray(data)) {
-    return data;
+    return data.map((category) => ({
+      ...category,
+      imageUrl: normalizeAssetUrl(
+        category.imageUrl || CATEGORY_IMAGE_FALLBACKS[category.name],
+      ),
+    }));
   }
 
-  return Array.isArray(data.categories) ? data.categories : [];
+  return Array.isArray(data.categories)
+    ? data.categories.map((category) => ({
+        ...category,
+        imageUrl: normalizeAssetUrl(
+          category.imageUrl || CATEGORY_IMAGE_FALLBACKS[category.name],
+        ),
+      }))
+    : [];
 }
 
 export async function addToCart(productId: string, quantity: number) {
