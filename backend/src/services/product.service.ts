@@ -6,6 +6,7 @@ interface ProductCreateInput {
   price: number;
   stock: number;
   imageUrl?: string;
+  images?: string[];
   categoryId?: string;
 }
 
@@ -15,6 +16,7 @@ interface ProductUpdateInput {
   price?: number;
   stock?: number;
   imageUrl?: string;
+  images?: string[];
   categoryId?: string;
 }
 
