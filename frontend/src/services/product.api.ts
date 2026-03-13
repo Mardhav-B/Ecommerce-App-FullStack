@@ -178,14 +178,11 @@ function normalizeImages(product: RawProduct) {
   const merged = [primaryImage, ...sourceImages].filter(Boolean);
   const uniqueImages = Array.from(new Set(merged));
 
-  if (uniqueImages.length >= 3) {
+  if (uniqueImages.length > 0) {
     return uniqueImages.slice(0, 5);
   }
 
-  return Array.from(
-    { length: 3 },
-    (_, index) => uniqueImages[index] || primaryImage,
-  );
+  return [FALLBACK_IMAGE];
 }
 
 export function normalizeProduct(product: RawProduct): Product {

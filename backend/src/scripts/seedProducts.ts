@@ -62,6 +62,10 @@ async function seedDatabase() {
 
     console.log("Categories seeded");
 
+    await prisma.cartItem.deleteMany();
+    await prisma.orderItem.deleteMany();
+    await prisma.order.deleteMany();
+    await prisma.heroBanner.deleteMany();
     await prisma.product.deleteMany();
 
     for (const product of products) {
@@ -71,15 +75,18 @@ async function seedDatabase() {
           description: product.description,
           price: product.price,
           stock: product.stock,
-          imageUrl: product.thumbnail,
+          imageUrl: product.images?.[0] || product.thumbnail,
+          images: Array.isArray(product.images)
+            ? product.images.filter(Boolean).slice(0, 5)
+            : product.thumbnail
+              ? [product.thumbnail]
+              : [],
           categoryId: categoryMap[product.category],
         },
       });
     }
 
     console.log("Products seeded");
-
-    await prisma.heroBanner.deleteMany();
 
     const heroBanners = [
       {
