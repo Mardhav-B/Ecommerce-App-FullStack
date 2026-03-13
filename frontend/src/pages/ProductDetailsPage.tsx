@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Minus, Plus, ShoppingBag, ShoppingCart, Star } from "lucide-react";
-
 import ProductImageGallery from "@/components/product/ProductImageGallery";
 import SuggestedProducts from "@/components/product/SuggestedProducts";
 import { Button } from "@/components/ui/button";

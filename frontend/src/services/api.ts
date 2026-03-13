@@ -112,8 +112,6 @@ export const fetchCategories = async (): Promise<Category[]> => {
   }
 };
 
-/* -------------------- FETCH PRODUCTS -------------------- */
-
 export const fetchProducts = async (): Promise<Product[]> => {
   try {
     const response = await fetch(`${API_BASE_URL}/products?limit=10`);
@@ -135,8 +133,6 @@ export const fetchProducts = async (): Promise<Product[]> => {
   }
 };
 
-/* -------------------- FETCH PRODUCT BY ID -------------------- */
-
 export const fetchProductById = async (id: string): Promise<Product | null> => {
   try {
     const response = await fetch(`${API_BASE_URL}/products/${id}`);
@@ -151,8 +147,6 @@ export const fetchProductById = async (id: string): Promise<Product | null> => {
     return null;
   }
 };
-
-/* -------------------- FETCH HERO BANNERS -------------------- */
 
 export const fetchHeroBanners = async (): Promise<HeroBanner[]> => {
   try {

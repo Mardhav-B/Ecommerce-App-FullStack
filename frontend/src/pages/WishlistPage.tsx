@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
-
 import WishlistCard from "@/components/wishlist/WishlistCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,8 @@ export default function WishlistPage() {
   } = useWishlist();
 
   const cartMutation = useMutation({
-    mutationFn: ({ productId }: { productId: string }) => addToCart(productId, 1),
+    mutationFn: ({ productId }: { productId: string }) =>
+      addToCart(productId, 1),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
@@ -36,9 +36,13 @@ export default function WishlistPage() {
             Sign in to view your wishlist
           </h1>
           <p className="mt-2 text-sm text-slate-500">
-            Wishlist items are tied to your account and are not shown before login.
+            Wishlist items are tied to your account and are not shown before
+            login.
           </p>
-          <Button asChild className="mt-6 bg-biscuit text-white hover:bg-biscuit-dark">
+          <Button
+            asChild
+            className="mt-6 bg-biscuit text-white hover:bg-biscuit-dark"
+          >
             <Link to="/auth">Go to Login</Link>
           </Button>
         </div>
@@ -69,7 +73,9 @@ export default function WishlistPage() {
             <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-biscuit-light text-biscuit-dark">
               <Heart className="size-7" />
             </div>
-            <h2 className="mt-5 text-2xl font-semibold text-slate-900">Wishlist is empty</h2>
+            <h2 className="mt-5 text-2xl font-semibold text-slate-900">
+              Wishlist is empty
+            </h2>
             <p className="mt-2 text-sm text-slate-500">
               Save products from the listing page and they will show up here.
             </p>

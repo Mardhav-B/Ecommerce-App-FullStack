@@ -13,8 +13,6 @@ async function seedDatabase() {
 
     console.log(`Fetched ${products.length} products`);
 
-    /* ---------------- CATEGORY IMAGES ---------------- */
-
     const categoryImages: Record<string, string> = {
       beauty: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9",
       fragrances:
@@ -41,8 +39,6 @@ async function seedDatabase() {
         "https://images.unsplash.com/photo-1519710164239-da123dc03ef4",
     };
 
-    /* ---------------- CREATE CATEGORIES ---------------- */
-
     const categoryMap: Record<string, string> = {};
 
     for (const product of products) {
@@ -66,11 +62,7 @@ async function seedDatabase() {
 
     console.log("Categories seeded");
 
-    /* ---------------- CLEAR OLD PRODUCTS ---------------- */
-
     await prisma.product.deleteMany();
-
-    /* ---------------- CREATE PRODUCTS ---------------- */
 
     for (const product of products) {
       await prisma.product.create({
@@ -86,8 +78,6 @@ async function seedDatabase() {
     }
 
     console.log("Products seeded");
-
-    /* ---------------- HERO BANNERS ---------------- */
 
     await prisma.heroBanner.deleteMany();
 
