@@ -88,7 +88,7 @@ function isAbsoluteUrl(value: string) {
 
 function normalizeAssetUrl(
   value?: string | null,
-  options: { width: number; quality: number } = { width: 1200, quality: 90 },
+  options: { width: number; quality: number } = { width: 1800, quality: 95 },
 ) {
   if (!value) {
     return FALLBACK_IMAGE;
@@ -127,7 +127,7 @@ function normalizeAssetUrl(
     }
 
     if (url.hostname.includes("dummyjson.com")) {
-      url.searchParams.set("imwidth", String(options.width));
+      url.searchParams.set("w", String(options.width));
       return url.toString();
     }
 
@@ -159,9 +159,22 @@ function extractCategoryName(category?: ProductCategoryRef | string | null) {
 
 function normalizeImages(product: RawProduct) {
   const sourceImages = Array.isArray(product.images)
-    ? product.images.filter(Boolean).map((image) => normalizeAssetUrl(image))
+    ? product.images
+        .filter(Boolean)
+        .map((image) =>
+          normalizeAssetUrl(image, {
+            width: 2200,
+            quality: 96,
+          }),
+        )
     : [];
-  const primaryImage = normalizeAssetUrl(product.imageUrl) || sourceImages[0] || FALLBACK_IMAGE;
+  const primaryImage =
+    normalizeAssetUrl(product.imageUrl, {
+      width: 2200,
+      quality: 96,
+    }) ||
+    sourceImages[0] ||
+    FALLBACK_IMAGE;
   const merged = [primaryImage, ...sourceImages].filter(Boolean);
   const uniqueImages = Array.from(new Set(merged));
 
