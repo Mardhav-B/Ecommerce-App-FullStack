@@ -6,11 +6,12 @@ import OrderCard from "@/components/order/OrderCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrders } from "@/hooks/useOrders";
 import { fetchCart, removeCartItem, type CartData } from "@/services/cart.api";
-import type { OrderData } from "@/services/order.api";
+import { getCheckoutSnapshot, type OrderData } from "@/services/order.api";
 
 export default function OrdersPage() {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
+  const checkoutSnapshot = getCheckoutSnapshot();
   const isPaymentReturn = searchParams.get("payment") === "success";
   const requestedOrderId = searchParams.get("orderId");
   const { data: orders = [], isLoading, isError, error } = useOrders({
@@ -47,7 +48,7 @@ export default function OrdersPage() {
   }, [isPaymentReturn, queryClient, requestedOrderId]);
 
   useEffect(() => {
-    if (!isPaymentReturn) {
+    if (!isPaymentReturn || checkoutSnapshot?.mode === "buy_now") {
       return;
     }
 
@@ -90,7 +91,7 @@ export default function OrdersPage() {
     return () => {
       cancelled = true;
     };
-  }, [isPaymentReturn, queryClient]);
+  }, [checkoutSnapshot?.mode, isPaymentReturn, queryClient]);
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#fcf5ee_0%,#fff_28%)] px-4 py-10 md:px-6">

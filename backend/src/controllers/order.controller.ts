@@ -8,8 +8,11 @@ import {
 export const placeOrder = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.id;
+    const items = Array.isArray(req.body?.items)
+      ? req.body.items
+      : undefined;
 
-    const order = await createOrder(userId);
+    const order = await createOrder(userId, items);
 
     res.status(201).json(order);
   } catch (error: any) {

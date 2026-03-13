@@ -1,9 +1,18 @@
 import { memo } from "react";
 
-import type { CartItem } from "@/services/cart.api";
+interface SummaryItem {
+  id: string;
+  quantity: number;
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    imageUrl?: string | null;
+  };
+}
 
 interface OrderSummaryProps {
-  items: CartItem[];
+  items: SummaryItem[];
   subtotal: number;
   shipping: number;
   tax: number;

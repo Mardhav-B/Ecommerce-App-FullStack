@@ -8,7 +8,66 @@ interface CartItemWithProduct {
   };
 }
 
-export const createOrder = async (userId: string) => {
+interface DirectOrderItemInput {
+  productId: string;
+  quantity: number;
+}
+
+export const createOrder = async (
+  userId: string,
+  directItems?: DirectOrderItemInput[],
+) => {
+  if (directItems?.length) {
+    const productIds = Array.from(new Set(directItems.map((item) => item.productId)));
+    const products = await prisma.product.findMany({
+      where: {
+        id: {
+          in: productIds,
+        },
+      },
+    });
+
+    if (products.length !== productIds.length) {
+      throw new Error("One or more products could not be found");
+    }
+
+    let totalPrice = 0;
+
+    const orderItems = directItems.map((item) => {
+      const product = products.find((entry) => entry.id === item.productId);
+
+      if (!product) {
+        throw new Error("Product not found");
+      }
+
+      totalPrice += product.price * item.quantity;
+
+      return {
+        productId: item.productId,
+        quantity: item.quantity,
+        price: product.price,
+      };
+    });
+
+    return prisma.order.create({
+      data: {
+        userId,
+        totalPrice,
+        status: "PENDING",
+        items: {
+          create: orderItems,
+        },
+      },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+  }
+
   const cart = await prisma.cart.findUnique({
     where: { userId },
     include: {
@@ -46,7 +105,11 @@ export const createOrder = async (userId: string) => {
       },
     },
     include: {
-      items: true,
+      items: {
+        include: {
+          product: true,
+        },
+      },
     },
   });
 

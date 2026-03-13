@@ -33,7 +33,7 @@ async function seedDatabase() {
       "mens-shirts":
         "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab",
       "mobile-accessories":
-        "https://images.pexels.com/photos/5082566/pexels-photo-5082566.jpeg",
+        "https://mate.net.in/public/uploads/all/UsReqZvujmEjMUb27qlTtRcCG8Pf18SyULO4HW7U.jpg",
 
       "kitchen-accessories":
         "https://images.unsplash.com/photo-1506368249639-73a05d6f6488",
