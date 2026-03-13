@@ -8,12 +8,14 @@ interface ProductGridProps {
   products: Product[];
   isLoading?: boolean;
   skeletonCount?: number;
+  lazyImages?: boolean;
 }
 
 function ProductGridComponent({
   products,
   isLoading = false,
   skeletonCount = 8,
+  lazyImages = true,
 }: ProductGridProps) {
   if (isLoading) {
     return (
@@ -36,7 +38,7 @@ function ProductGridComponent({
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard key={product.id} product={product} lazyImage={lazyImages} />
       ))}
     </div>
   );

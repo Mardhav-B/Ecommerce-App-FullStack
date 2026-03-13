@@ -22,7 +22,6 @@ function WishlistCardComponent({
       <img
         src={item.product.imageUrl || "https://placehold.co/320x320/f6ede4/8b6b50?text=Wishlist"}
         alt={item.product.name}
-        loading="lazy"
         className="h-52 w-full rounded-xl bg-white object-contain p-4"
       />
 

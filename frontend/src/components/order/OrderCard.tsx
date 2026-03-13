@@ -41,7 +41,6 @@ function OrderCardComponent({ order }: OrderCardProps) {
             <img
               src={item.product.imageUrl || "https://placehold.co/160x160/f6ede4/8b6b50?text=Item"}
               alt={item.product.name}
-              loading="lazy"
               className="size-14 rounded-lg bg-white object-contain p-2"
             />
             <div className="min-w-0">

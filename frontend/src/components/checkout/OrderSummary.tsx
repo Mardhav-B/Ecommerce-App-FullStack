@@ -27,7 +27,6 @@ function OrderSummaryComponent({
             <img
               src={item.product.imageUrl || "https://placehold.co/200x200/f6ede4/8b6b50?text=Item"}
               alt={item.product.name}
-              loading="lazy"
               className="size-16 rounded-xl border border-biscuit-light bg-white object-contain p-2"
             />
             <div className="min-w-0 flex-1">

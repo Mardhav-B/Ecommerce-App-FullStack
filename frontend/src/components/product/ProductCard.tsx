@@ -9,9 +9,13 @@ import { useWishlist } from "@/hooks/useWishlist";
 
 interface ProductCardProps {
   product: Product;
+  lazyImage?: boolean;
 }
 
-function ProductCardComponent({ product }: ProductCardProps) {
+function ProductCardComponent({
+  product,
+  lazyImage = true,
+}: ProductCardProps) {
   const queryClient = useQueryClient();
   const [feedback, setFeedback] = useState<string | null>(null);
   const { toggleWishlist, isWishlisted } = useWishlist();
@@ -52,13 +56,13 @@ function ProductCardComponent({ product }: ProductCardProps) {
 
       <Link
         to={`/products/${product.id}`}
-        className="block overflow-hidden rounded-xl bg-biscuit-light"
+        className="block overflow-hidden rounded-xl bg-white"
       >
         <img
           src={product.imageUrl}
           alt={product.name}
-          loading="lazy"
-          className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          loading={lazyImage ? "lazy" : "eager"}
+          className="aspect-square h-44 w-full bg-white object-contain p-3 transition-transform duration-500 group-hover:scale-[1.03]"
         />
       </Link>
 

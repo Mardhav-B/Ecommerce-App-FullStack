@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Minus, Plus, ShoppingBag, ShoppingCart, Star } from "lucide-react";
 
 import ProductImageGallery from "@/components/product/ProductImageGallery";
@@ -20,6 +20,7 @@ const SIZE_CATEGORIES = new Set([
 export default function ProductDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -42,6 +43,7 @@ export default function ProductDetailsPage() {
   const cartMutation = useMutation({
     mutationFn: (nextQuantity: number) => addToCart(product!.id, nextQuantity),
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["cart"] });
       setFeedback("Added to cart");
       window.setTimeout(() => setFeedback(null), 2000);
     },
@@ -113,7 +115,7 @@ export default function ProductDetailsPage() {
 
     try {
       await cartMutation.mutateAsync(quantity);
-      navigate("/profile");
+      navigate("/checkout");
     } catch {
       return;
     }

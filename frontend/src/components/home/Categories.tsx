@@ -78,7 +78,6 @@ export default function Categories() {
                       <img
                         src={category.imageUrl}
                         alt={category.name}
-                        loading="lazy"
                         className="h-44 w-full object-cover transition duration-500 group-hover:scale-105"
                       />
                     ) : (
