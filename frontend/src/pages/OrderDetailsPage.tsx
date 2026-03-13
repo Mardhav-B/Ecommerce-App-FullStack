@@ -13,6 +13,10 @@ export default function OrderDetailsPage() {
   const { data: order, isLoading, isError, error } = useOrder(id);
   const { data: user } = useAuth();
   const snapshot = getCheckoutSnapshot();
+  const displayStatus =
+    snapshot?.orderId === order?.id && snapshot?.status
+      ? "PAID"
+      : order?.status ?? "PENDING";
   const shipping =
     snapshot && snapshot.orderId === order?.id
       ? snapshot.shipping
@@ -64,7 +68,7 @@ export default function OrderDetailsPage() {
 
           <div className="flex flex-col items-start gap-3 md:items-end">
             <span className="rounded-full bg-biscuit-light px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-biscuit-dark">
-              {order.status}
+              {displayStatus}
             </span>
             <div className="flex gap-3">
               <Button className="bg-biscuit text-white hover:bg-biscuit-dark">

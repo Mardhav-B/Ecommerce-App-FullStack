@@ -20,6 +20,15 @@ export default function OrdersPage() {
     () => (requestedOrderId ? orders.find((order) => order.id === requestedOrderId) : null),
     [orders, requestedOrderId],
   );
+  const displayOrders = useMemo(
+    () =>
+      orders.map((order) =>
+        isPaymentReturn && requestedOrderId && order.id === requestedOrderId
+          ? { ...order, status: "PAID" }
+          : order,
+      ),
+    [isPaymentReturn, orders, requestedOrderId],
+  );
 
   useEffect(() => {
     if (!isPaymentReturn || !requestedOrderId) {
@@ -97,7 +106,7 @@ export default function OrdersPage() {
 
         {isPaymentReturn ? (
           <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 p-5 text-sm text-green-800">
-            {highlightedOrder?.status === "PAID"
+            {highlightedOrder
               ? `Payment completed successfully. Order ${highlightedOrder.id} is now confirmed.`
               : "Payment completed. Your latest order is syncing and will update here shortly."}
           </div>
@@ -114,7 +123,7 @@ export default function OrdersPage() {
             ? Array.from({ length: 3 }).map((_, index) => (
                 <Skeleton key={index} className="h-56 rounded-xl" />
               ))
-            : orders.map((order) => <OrderCard key={order.id} order={order} />)}
+            : displayOrders.map((order) => <OrderCard key={order.id} order={order} />)}
         </div>
       </div>
     </main>
