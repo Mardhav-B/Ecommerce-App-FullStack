@@ -7,7 +7,7 @@ import type { WishlistItem } from "@/services/wishlist.api";
 interface WishlistCardProps {
   item: WishlistItem;
   onRemove: (wishlistItemId: string) => void;
-  onAddToCart: (productId: string) => void;
+  onAddToCart: (wishlistItemId: string, productId: string) => void;
   disabled?: boolean;
 }
 
@@ -36,7 +36,7 @@ function WishlistCardComponent({
         <Button
           type="button"
           className="flex-1 bg-biscuit text-white hover:bg-biscuit-dark"
-          onClick={() => onAddToCart(item.productId)}
+          onClick={() => onAddToCart(item.id, item.productId)}
           disabled={disabled}
         >
           <ShoppingCart className="size-4" />

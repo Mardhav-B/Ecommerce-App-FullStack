@@ -91,13 +91,16 @@ function ProductFiltersComponent({ value, onChange }: ProductFiltersProps) {
               <input
                 type="range"
                 min={0}
-                max={1000}
+                max={15000}
                 step={10}
                 value={value.minPrice}
                 onChange={(event) =>
                   onChange({
                     ...value,
-                    minPrice: Math.min(Number(event.target.value), value.maxPrice),
+                    minPrice: Math.min(
+                      Number(event.target.value),
+                      value.maxPrice,
+                    ),
                   })
                 }
                 className="w-full accent-biscuit"
@@ -112,13 +115,16 @@ function ProductFiltersComponent({ value, onChange }: ProductFiltersProps) {
               <input
                 type="range"
                 min={0}
-                max={1000}
+                max={15000}
                 step={10}
                 value={value.maxPrice}
                 onChange={(event) =>
                   onChange({
                     ...value,
-                    maxPrice: Math.max(Number(event.target.value), value.minPrice),
+                    maxPrice: Math.max(
+                      Number(event.target.value),
+                      value.minPrice,
+                    ),
                   })
                 }
                 className="w-full accent-biscuit"
