@@ -1,11 +1,15 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 
 import OrderCard from "@/components/order/OrderCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrders } from "@/hooks/useOrders";
+import { fetchCart, removeCartItem, type CartData } from "@/services/cart.api";
+import type { OrderData } from "@/services/order.api";
 
 export default function OrdersPage() {
+  const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const isPaymentReturn = searchParams.get("payment") === "success";
   const requestedOrderId = searchParams.get("orderId");
@@ -16,6 +20,68 @@ export default function OrdersPage() {
     () => (requestedOrderId ? orders.find((order) => order.id === requestedOrderId) : null),
     [orders, requestedOrderId],
   );
+
+  useEffect(() => {
+    if (!isPaymentReturn || !requestedOrderId) {
+      return;
+    }
+
+    queryClient.setQueryData<OrderData[]>(["orders"], (currentOrders) =>
+      currentOrders?.map((order) =>
+        order.id === requestedOrderId ? { ...order, status: "PAID" } : order,
+      ) ?? currentOrders,
+    );
+
+    queryClient.setQueryData<OrderData>(["order", requestedOrderId], (currentOrder) =>
+      currentOrder ? { ...currentOrder, status: "PAID" } : currentOrder,
+    );
+  }, [isPaymentReturn, queryClient, requestedOrderId]);
+
+  useEffect(() => {
+    if (!isPaymentReturn) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const clearCartAfterPayment = async () => {
+      try {
+        const cart = await fetchCart();
+
+        if (!cart.items.length) {
+          if (!cancelled) {
+            queryClient.setQueryData<CartData>(["cart"], {
+              id: cart.id,
+              items: [],
+            });
+          }
+          return;
+        }
+
+        await Promise.all(
+          cart.items.map((item) =>
+            removeCartItem(item.id).catch(() => item.id),
+          ),
+        );
+
+        if (!cancelled) {
+          queryClient.setQueryData<CartData>(["cart"], {
+            id: cart.id,
+            items: [],
+          });
+          void queryClient.invalidateQueries({ queryKey: ["cart"] });
+        }
+      } catch {
+        return;
+      }
+    };
+
+    void clearCartAfterPayment();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isPaymentReturn, queryClient]);
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#fcf5ee_0%,#fff_28%)] px-4 py-10 md:px-6">

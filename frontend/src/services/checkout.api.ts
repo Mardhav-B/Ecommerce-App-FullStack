@@ -60,7 +60,7 @@ export async function createCheckoutSession(orderId?: string) {
     try {
       const response = await api.post<CheckoutSessionResponse>(
         "/payment/checkout",
-        undefined,
+        orderId ? { orderId } : undefined,
         {
           headers: getAuthHeaders(),
         },

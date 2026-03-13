@@ -12,21 +12,10 @@ export function useCheckout() {
 
   return useMutation({
     mutationFn: async (values: ShippingFormValues) => {
-      try {
-        saveCheckoutSnapshot(
-          {
-            status: "PENDING",
-          },
-          values,
-        );
-        const session = await createCheckoutSession();
-        return { session, order: null };
-      } catch {
-        const order = (await createOrder()) as OrderData;
-        saveCheckoutSnapshot(order, values);
-        const session = await createCheckoutSession(order.id);
-        return { session, order };
-      }
+      const order = (await createOrder()) as OrderData;
+      saveCheckoutSnapshot(order, values);
+      const session = await createCheckoutSession(order.id);
+      return { session, order };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
