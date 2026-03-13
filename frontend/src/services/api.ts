@@ -25,7 +25,7 @@ export interface HeroBanner {
 
 const CATEGORY_IMAGE_FALLBACKS: Record<string, string> = {
   "mobile-accessories":
-    "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1200&q=90",
+    "https://mate.net.in/public/uploads/all/UsReqZvujmEjMUb27qlTtRcCG8Pf18SyULO4HW7U.jpg",
 };
 
 function isAbsoluteUrl(value: string) {

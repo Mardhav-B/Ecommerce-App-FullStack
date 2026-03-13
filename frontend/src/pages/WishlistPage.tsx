@@ -1,13 +1,16 @@
+import { Link } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
 
 import WishlistCard from "@/components/wishlist/WishlistCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { useWishlist } from "@/hooks/useWishlist";
 import { addToCart } from "@/services/product.api";
 
 export default function WishlistPage() {
   const queryClient = useQueryClient();
+  const hasToken = Boolean(localStorage.getItem("accessToken"));
   const {
     data: wishlist = [],
     isLoading,
@@ -21,6 +24,27 @@ export default function WishlistPage() {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
   });
+
+  if (!hasToken) {
+    return (
+      <main className="min-h-screen bg-[linear-gradient(180deg,#fcf5ee_0%,#fff_28%)] px-4 py-10 md:px-6">
+        <div className="mx-auto max-w-3xl rounded-2xl border border-biscuit-light bg-white p-10 text-center shadow-sm">
+          <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-biscuit-light text-biscuit-dark">
+            <Heart className="size-7" />
+          </div>
+          <h1 className="mt-5 text-2xl font-semibold text-slate-900">
+            Sign in to view your wishlist
+          </h1>
+          <p className="mt-2 text-sm text-slate-500">
+            Wishlist items are tied to your account and are not shown before login.
+          </p>
+          <Button asChild className="mt-6 bg-biscuit text-white hover:bg-biscuit-dark">
+            <Link to="/auth">Go to Login</Link>
+          </Button>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#fcf5ee_0%,#fff_28%)] px-4 py-10 md:px-6">

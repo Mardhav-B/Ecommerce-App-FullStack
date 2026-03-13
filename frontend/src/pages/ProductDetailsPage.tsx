@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useProduct } from "@/hooks/useProduct";
 import { useProducts } from "@/hooks/useProducts";
 import { addToCart } from "@/services/product.api";
+import { createOrder } from "@/services/checkout.api";
 
 const SIZE_CATEGORIES = new Set([
   "mens-shirts",
@@ -52,6 +53,22 @@ export default function ProductDetailsPage() {
         mutationError instanceof Error
           ? mutationError.message
           : "Unable to add item to cart",
+      );
+    },
+  });
+  const buyNowMutation = useMutation({
+    mutationFn: (nextQuantity: number) =>
+      createOrder([
+        {
+          productId: product!.id,
+          quantity: nextQuantity,
+        },
+      ]),
+    onError: (mutationError) => {
+      setFeedback(
+        mutationError instanceof Error
+          ? mutationError.message
+          : "Unable to start buy now checkout",
       );
     },
   });
@@ -114,8 +131,8 @@ export default function ProductDetailsPage() {
     }
 
     try {
-      await cartMutation.mutateAsync(quantity);
-      navigate("/checkout");
+      const order = await buyNowMutation.mutateAsync(quantity);
+      navigate(`/checkout?orderId=${encodeURIComponent(order.id)}`);
     } catch {
       return;
     }
@@ -235,10 +252,10 @@ export default function ProductDetailsPage() {
                   variant="outline"
                   className="h-11 flex-1 border-biscuit text-biscuit-dark hover:bg-biscuit-light"
                   onClick={() => void handleBuyNow()}
-                  disabled={cartMutation.isPending}
+                  disabled={cartMutation.isPending || buyNowMutation.isPending}
                 >
                   <ShoppingBag className="size-4" />
-                  Buy Now
+                  {buyNowMutation.isPending ? "Starting..." : "Buy Now"}
                 </Button>
               </div>
 

@@ -27,6 +27,10 @@ export default function Categories() {
     void loadCategories();
   }, []);
 
+  const landingCategories = categories.filter(
+    (category) => category.name !== "mobile-accessories",
+  );
+
   return (
     <section className="px-4 py-16 md:px-6">
       <div className="mx-auto max-w-7xl rounded-[2rem] bg-white/90 p-6 shadow-[0_25px_70px_rgba(141,97,62,0.08)] md:p-8">
@@ -67,7 +71,7 @@ export default function Categories() {
                   <Skeleton className="mt-3 h-10 w-full rounded-full" />
                 </div>
               ))
-            : categories.map((category) => (
+            : landingCategories.map((category) => (
                 <Link
                   key={category.id}
                   to={`/products?category=${encodeURIComponent(category.id)}`}

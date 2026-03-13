@@ -9,9 +9,9 @@ const EMPTY_WISHLIST: WishlistItem[] = [];
 
 export function useWishlist() {
   const { data: user } = useAuth();
-  const userId = user?.id ?? "guest";
+  const userId = user?.id;
   const wishlist = useAppStore(
-    (state) => state.wishlistByUser[userId] ?? EMPTY_WISHLIST,
+    (state) => (userId ? state.wishlistByUser[userId] ?? EMPTY_WISHLIST : EMPTY_WISHLIST),
   );
   const addWishlistItem = useAppStore((state) => state.addWishlistItem);
   const removeWishlistItem = useAppStore((state) => state.removeWishlistItem);
@@ -26,6 +26,10 @@ export function useWishlist() {
   );
 
   const addToWishlist = (product: Product) => {
+    if (!userId) {
+      return false;
+    }
+
     addWishlistItem(userId, {
       id: `wishlist-${product.id}`,
       productId: product.id,
@@ -36,15 +40,20 @@ export function useWishlist() {
         imageUrl: product.imageUrl,
       },
     });
+    return true;
   };
 
   const toggleWishlist = (product: Product) => {
-    if (isWishlisted(userId, product.id)) {
-      removeWishlistItemByProductId(userId, product.id);
-      return;
+    if (!userId) {
+      return false;
     }
 
-    addToWishlist(product);
+    if (isWishlisted(userId, product.id)) {
+      removeWishlistItemByProductId(userId, product.id);
+      return true;
+    }
+
+    return addToWishlist(product);
   };
 
   return {
@@ -52,11 +61,12 @@ export function useWishlist() {
     isLoading: false,
     isError: false,
     error: null,
+    requiresAuth: !userId,
     addToWishlist,
     removeFromWishlist: (wishlistItemId: string) =>
-      removeWishlistItem(userId, wishlistItemId),
+      userId ? removeWishlistItem(userId, wishlistItemId) : undefined,
     toggleWishlist,
-    isWishlisted: (productId: string) => isWishlisted(userId, productId),
+    isWishlisted: (productId: string) => (userId ? isWishlisted(userId, productId) : false),
     isAddingToWishlist: false,
     isRemovingFromWishlist: false,
   };

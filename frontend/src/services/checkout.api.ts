@@ -12,6 +12,11 @@ export interface ShippingFormValues {
   country: string;
 }
 
+export interface CheckoutOrderItemInput {
+  productId: string;
+  quantity: number;
+}
+
 interface CreatedOrder {
   id: string;
   totalPrice: number;
@@ -33,10 +38,10 @@ function getAuthHeaders() {
   };
 }
 
-export async function createOrder() {
+export async function createOrder(items?: CheckoutOrderItemInput[]) {
   const response = await api.post<CreatedOrder>(
     "/orders",
-    {},
+    items?.length ? { items } : {},
     {
       headers: getAuthHeaders(),
     },

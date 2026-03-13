@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 
 import CheckoutForm from "@/components/checkout/CheckoutForm";
@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
 import { useCheckout } from "@/hooks/useCheckout";
+import { useOrder } from "@/hooks/useOrder";
 import type { ShippingFormValues } from "@/services/checkout.api";
 
 function getOrderTotals(items: Array<{ quantity: number; product: { price: number } }>) {
@@ -21,12 +22,21 @@ function getOrderTotals(items: Array<{ quantity: number; product: { price: numbe
 }
 
 export default function CheckoutPage() {
+  const [searchParams] = useSearchParams();
+  const directOrderId = searchParams.get("orderId") ?? undefined;
   const { data: user } = useAuth();
   const { data, isLoading, isError, error } = useCart();
+  const directOrderQuery = useOrder(directOrderId);
   const checkoutMutation = useCheckout();
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
-  const items = data?.items ?? [];
+  const directItems =
+    directOrderQuery.data?.items.map((item) => ({
+      id: item.id,
+      quantity: item.quantity,
+      product: item.product,
+    })) ?? [];
+  const items = directOrderId ? directItems : data?.items ?? [];
   const totals = getOrderTotals(items);
 
   if (!localStorage.getItem("accessToken")) {
@@ -36,7 +46,11 @@ export default function CheckoutPage() {
   const handleCheckout = async (values: ShippingFormValues) => {
     try {
       setCheckoutError(null);
-      const result = await checkoutMutation.mutateAsync(values);
+      const result = await checkoutMutation.mutateAsync({
+        values,
+        orderId: directOrderId,
+        mode: directOrderId ? "buy_now" : "cart",
+      });
       window.location.href = result.session.url;
     } catch (checkoutFailure) {
       setCheckoutError(
@@ -65,10 +79,18 @@ export default function CheckoutPage() {
           </div>
         ) : null}
 
-        {isLoading ? (
+        {isLoading || (directOrderId ? directOrderQuery.isLoading : false) ? (
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
             <Skeleton className="h-[34rem] rounded-xl" />
             <Skeleton className="h-[28rem] rounded-xl" />
+          </div>
+        ) : isError || (directOrderId ? directOrderQuery.isError : false) ? (
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+            {error instanceof Error
+              ? error.message
+              : directOrderQuery.error instanceof Error
+                ? directOrderQuery.error.message
+                : "Unable to load checkout."}
           </div>
         ) : items.length === 0 ? (
           <CartEmpty />

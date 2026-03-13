@@ -40,6 +40,7 @@ function getAuthHeaders() {
 export function saveCheckoutSnapshot(
   order: Partial<Pick<OrderData, "id" | "totalPrice" | "status">>,
   shipping?: ShippingFormValues,
+  mode: "cart" | "buy_now" = "cart",
 ) {
   localStorage.setItem(
     "latestOrderSummary",
@@ -48,6 +49,7 @@ export function saveCheckoutSnapshot(
       totalPrice: order.totalPrice,
       status: order.status,
       shipping,
+      mode,
       initiatedAt: new Date().toISOString(),
     }),
   );
@@ -58,6 +60,7 @@ export function getCheckoutSnapshot(): {
   totalPrice?: number;
   status?: string;
   shipping?: ShippingFormValues;
+  mode?: "cart" | "buy_now";
   initiatedAt?: string;
 } | null {
   const raw = localStorage.getItem("latestOrderSummary");
@@ -72,6 +75,7 @@ export function getCheckoutSnapshot(): {
       totalPrice?: number;
       status?: string;
       shipping?: ShippingFormValues;
+      mode?: "cart" | "buy_now";
       initiatedAt?: string;
     };
   } catch {

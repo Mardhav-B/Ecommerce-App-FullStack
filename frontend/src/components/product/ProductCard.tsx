@@ -18,7 +18,7 @@ function ProductCardComponent({
 }: ProductCardProps) {
   const queryClient = useQueryClient();
   const [feedback, setFeedback] = useState<string | null>(null);
-  const { toggleWishlist, isWishlisted } = useWishlist();
+  const { toggleWishlist, isWishlisted, requiresAuth } = useWishlist();
 
   useEffect(() => {
     setFeedback(null);
@@ -43,7 +43,13 @@ function ProductCardComponent({
       <div className="mb-3 flex justify-end">
         <button
           type="button"
-          onClick={() => toggleWishlist(product)}
+          onClick={() => {
+            const updated = toggleWishlist(product);
+
+            if (!updated && requiresAuth) {
+              setFeedback("Please sign in to save items to your wishlist.");
+            }
+          }}
           className={`inline-flex size-9 items-center justify-center rounded-full border transition ${
             wishlisted
               ? "border-biscuit bg-biscuit-light text-biscuit-dark"
