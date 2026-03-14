@@ -1,19 +1,22 @@
+import { useMutation } from "@tanstack/react-query";
 import { Truck } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import OrderItem from "@/components/order/OrderItem";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrder } from "@/hooks/useOrder";
-import { getCheckoutSnapshot } from "@/services/order.api";
+import { createOrder } from "@/services/checkout.api";
+import { getCheckoutSnapshot, isOrderMarkedPaid } from "@/services/order.api";
 
 export default function OrderDetailsPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { data: order, isLoading, isError, error } = useOrder(id);
   const { data: user } = useAuth();
   const snapshot = getCheckoutSnapshot();
   const displayStatus =
-    snapshot?.orderId === order?.id && snapshot?.status
+    (snapshot?.orderId === order?.id && snapshot?.status) || isOrderMarkedPaid(order?.id)
       ? "PAID"
       : order?.status ?? "PENDING";
   const shipping =
@@ -21,6 +24,18 @@ export default function OrderDetailsPage() {
       ? snapshot.shipping
       : undefined;
   const fallbackAddress = user?.addresses?.[0];
+  const reorderMutation = useMutation({
+    mutationFn: () =>
+      createOrder(
+        order?.items.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+        })) ?? [],
+      ),
+    onSuccess: (nextOrder) => {
+      navigate(`/checkout?orderId=${encodeURIComponent(nextOrder.id)}`);
+    },
+  });
 
   if (isLoading) {
     return (
@@ -75,11 +90,12 @@ export default function OrderDetailsPage() {
                 Track Order
               </Button>
               <Button
-                asChild
                 variant="outline"
                 className="border-biscuit text-biscuit-dark hover:bg-biscuit-light"
+                onClick={() => reorderMutation.mutate()}
+                disabled={reorderMutation.isPending}
               >
-                <Link to="/products">Reorder</Link>
+                {reorderMutation.isPending ? "Preparing..." : "Reorder"}
               </Button>
             </div>
           </div>

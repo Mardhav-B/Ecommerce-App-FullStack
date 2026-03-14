@@ -59,8 +59,12 @@ function CartItemComponent({
                 variant="ghost"
                 size="icon-sm"
                 className="rounded-full"
-                disabled={disabled || item.quantity <= 1}
-                onClick={() => onUpdateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                disabled={disabled}
+                onClick={() =>
+                  item.quantity <= 1
+                    ? onRemove(item.id)
+                    : onUpdateQuantity(item.id, item.quantity - 1)
+                }
               >
                 <Minus className="size-4" />
               </Button>

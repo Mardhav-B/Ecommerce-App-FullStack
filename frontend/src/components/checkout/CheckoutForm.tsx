@@ -1,4 +1,5 @@
 import { memo, useEffect } from "react";
+import { ChevronDown } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -61,6 +62,7 @@ function CheckoutFormComponent({
   });
 
   useEffect(() => {
+    setSelectedCheckoutAddressId(null);
     reset({
       name: "",
       email: "",
@@ -72,7 +74,22 @@ function CheckoutFormComponent({
       country: "",
       ...defaultValues,
     });
-  }, [defaultValues, reset]);
+  }, [defaultValues, reset, setSelectedCheckoutAddressId]);
+
+  useEffect(() => {
+    if (!savedAddresses.length) {
+      setSelectedCheckoutAddressId(null);
+      return;
+    }
+
+    const hasSelectedAddress = savedAddresses.some(
+      (address) => address.id === selectedCheckoutAddressId,
+    );
+
+    if (!hasSelectedAddress) {
+      setSelectedCheckoutAddressId(null);
+    }
+  }, [savedAddresses, selectedCheckoutAddressId, setSelectedCheckoutAddressId]);
 
   const applySavedAddress = (address: SavedAddress) => {
     setSelectedCheckoutAddressId(address.id);
@@ -86,44 +103,53 @@ function CheckoutFormComponent({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="rounded-xl border border-biscuit-light bg-white p-6 shadow-sm"
+      className="rounded-xl border border-biscuit-light bg-white p-4 shadow-sm sm:p-5 md:p-6"
     >
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold text-slate-900">Shipping Details</h2>
+      <div className="mb-5 sm:mb-6">
+        <h2 className="text-xl font-semibold text-slate-900 sm:text-2xl">Shipping Details</h2>
         <p className="mt-1 text-sm text-slate-500">
           Enter delivery information before moving to payment.
         </p>
       </div>
 
       {savedAddresses.length > 0 ? (
-        <div className="mb-6">
-          <p className="mb-3 text-sm font-medium text-slate-700">Use saved address</p>
-          <div className="grid gap-3">
-            {savedAddresses.map((address) => (
-              <button
-                key={address.id}
-                type="button"
-                onClick={() => applySavedAddress(address)}
-                className={`rounded-xl border p-4 text-left transition ${
-                  selectedCheckoutAddressId === address.id
-                    ? "border-biscuit bg-biscuit-light/65"
-                    : "border-biscuit-light bg-biscuit-light/35 hover:border-biscuit hover:bg-biscuit-light/60"
-                }`}
-              >
-                <p className="text-sm font-medium text-slate-900">{address.street}</p>
-                <p className="mt-1 text-xs leading-5 text-slate-600">
-                  {address.city}, {address.state}, {address.country} - {address.zipCode}
-                </p>
-              </button>
-            ))}
+        <div className="mb-5 sm:mb-6">
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Use saved address
+          </label>
+          <div className="relative">
+            <select
+              value={selectedCheckoutAddressId ?? ""}
+              onChange={(event) => {
+                const nextAddress = savedAddresses.find(
+                  (address) => address.id === event.target.value,
+                );
+
+                if (nextAddress) {
+                  applySavedAddress(nextAddress);
+                  return;
+                }
+
+                setSelectedCheckoutAddressId(null);
+              }}
+              className="h-11 w-full appearance-none rounded-xl border border-biscuit-light bg-[linear-gradient(180deg,#fff_0%,#fcf8f3_100%)] px-3.5 pr-10 text-sm text-slate-700 shadow-sm outline-none transition duration-200 focus:border-biscuit focus:shadow-[0_0_0_4px_rgba(201,141,89,0.12)] sm:h-12 sm:px-4 sm:pr-11"
+            >
+              <option value="">Choose address</option>
+              {savedAddresses.map((address) => (
+                <option key={address.id} value={address.id}>
+                  {address.street}, {address.city}, {address.state}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
           </div>
         </div>
       ) : null}
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3.5 sm:gap-4 md:grid-cols-2">
         <div className="md:col-span-2">
           <label className="mb-2 block text-sm font-medium text-slate-700">Name</label>
-                  <Input {...register("name")} className="h-11 rounded-xl border-biscuit-light" />
+          <Input {...register("name")} className="h-11 rounded-xl border-biscuit-light" />
           {errors.name ? <p className="mt-1 text-xs text-red-600">{errors.name.message}</p> : null}
         </div>
         <div>
@@ -165,7 +191,7 @@ function CheckoutFormComponent({
 
       <Button
         type="submit"
-        className="mt-6 h-12 w-full bg-biscuit text-white hover:bg-biscuit-dark"
+        className="mt-5 h-11 w-full bg-biscuit text-white hover:bg-biscuit-dark sm:mt-6 sm:h-12"
         disabled={isSubmitting}
       >
         {isSubmitting ? "Redirecting..." : "Continue to Payment"}

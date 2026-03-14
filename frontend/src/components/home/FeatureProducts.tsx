@@ -14,14 +14,14 @@ export default function FeaturedProducts() {
   );
 
   return (
-    <section className="px-4 py-16 md:px-6">
+    <section className="px-3 py-12 sm:px-4 sm:py-16 md:px-6">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div className="mb-6 flex flex-col gap-3 sm:mb-8 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-biscuit-dark">
               Featured Products
             </p>
-            <h2 className="mt-2 text-3xl font-semibold text-slate-900 md:text-4xl">
+            <h2 className="mt-2 text-2xl font-semibold leading-tight text-slate-900 sm:text-3xl md:text-4xl">
               New arrivals with a softer, more premium storefront.
             </h2>
           </div>
@@ -35,7 +35,7 @@ export default function FeaturedProducts() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 gap-5 md:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
           {isLoading
             ? Array.from({ length: 8 }).map((_, idx) => (
                 <div

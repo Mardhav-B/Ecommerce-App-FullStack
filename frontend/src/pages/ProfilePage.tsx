@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { MapPinHouse, Plus, LogOut } from "lucide-react";
+import { MapPinHouse, Pencil, Plus, LogOut, Trash2, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "../hooks/useAuth";
 import { useOrders } from "../hooks/useOrders";
-import { logoutUser, saveAddress } from "../services/auth.api";
+import {
+  deleteAddress,
+  logoutUser,
+  saveAddress,
+  updateAddress,
+  type SavedAddress,
+} from "../services/auth.api";
+import { isOrderMarkedPaid } from "../services/order.api";
 import { Skeleton } from "../components/ui/skeleton";
 
 interface AddressForm {
@@ -33,6 +40,7 @@ export default function ProfilePage() {
   const { data: orders = [] } = useOrders();
   const [visible, setVisible] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [editingAddress, setEditingAddress] = useState<SavedAddress | null>(null);
 
   const {
     register,
@@ -44,15 +52,35 @@ export default function ProfilePage() {
   });
 
   const addressMutation = useMutation({
-    mutationFn: saveAddress,
+    mutationFn: (data: AddressForm) =>
+      editingAddress ? updateAddress(editingAddress.id, data) : saveAddress(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["authUser"] });
       reset();
-      setSaveMessage("Address saved successfully.");
+      setEditingAddress(null);
+      setSaveMessage(
+        editingAddress ? "Address updated successfully." : "Address saved successfully.",
+      );
     },
     onError: (error) => {
       setSaveMessage(
         error instanceof Error ? error.message : "Failed to save address",
+      );
+    },
+  });
+  const deleteAddressMutation = useMutation({
+    mutationFn: deleteAddress,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+      setSaveMessage("Address removed successfully.");
+      if (editingAddress) {
+        setEditingAddress(null);
+        reset();
+      }
+    },
+    onError: (error) => {
+      setSaveMessage(
+        error instanceof Error ? error.message : "Failed to delete address",
       );
     },
   });
@@ -68,6 +96,24 @@ export default function ProfilePage() {
       setVisible(true);
     }
   }, [isLoading, user]);
+
+  const startEditingAddress = (address: SavedAddress) => {
+    setEditingAddress(address);
+    setSaveMessage(null);
+    reset({
+      street: address.street,
+      city: address.city,
+      state: address.state,
+      country: address.country,
+      zipCode: address.zipCode,
+    });
+  };
+
+  const cancelEditingAddress = () => {
+    setEditingAddress(null);
+    reset();
+    setSaveMessage(null);
+  };
 
   if (isLoading) {
     return (
@@ -145,6 +191,25 @@ export default function ProfilePage() {
                       <br />
                       {address.country} - {address.zipCode}
                     </p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => startEditingAddress(address)}
+                        className="inline-flex items-center gap-2 rounded-full border border-biscuit/25 px-3 py-2 text-xs font-semibold text-biscuit-dark transition hover:border-biscuit"
+                      >
+                        <Pencil className="size-3.5" />
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => deleteAddressMutation.mutate(address.id)}
+                        disabled={deleteAddressMutation.isPending}
+                        className="inline-flex items-center gap-2 rounded-full border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
+                      >
+                        <Trash2 className="size-3.5" />
+                        Remove
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -162,10 +227,12 @@ export default function ProfilePage() {
               </div>
               <div>
                 <h2 className="text-2xl font-semibold text-slate-900">
-                  Add New Address
+                  {editingAddress ? "Edit Address" : "Add New Address"}
                 </h2>
                 <p className="text-sm text-slate-500">
-                  Save a shipping address for your next checkout.
+                  {editingAddress
+                    ? "Update this saved address for future checkouts."
+                    : "Save a shipping address for your next checkout."}
                 </p>
               </div>
             </div>
@@ -211,8 +278,22 @@ export default function ProfilePage() {
                 disabled={addressMutation.isPending}
                 className="w-full rounded-2xl bg-biscuit py-3 font-semibold text-white transition hover:bg-biscuit-dark disabled:opacity-60"
               >
-                {addressMutation.isPending ? "Saving..." : "Save Address"}
+                {addressMutation.isPending
+                  ? "Saving..."
+                  : editingAddress
+                    ? "Update Address"
+                    : "Save Address"}
               </button>
+
+              {editingAddress ? (
+                <button
+                  type="button"
+                  onClick={cancelEditingAddress}
+                  className="w-full rounded-2xl border border-biscuit/25 py-3 font-semibold text-biscuit-dark transition hover:border-biscuit"
+                >
+                  Cancel Editing
+                </button>
+              ) : null}
             </form>
           </section>
         </div>
@@ -252,10 +333,25 @@ export default function ProfilePage() {
                         ${order.totalPrice.toFixed(2)}
                       </p>
                       <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
-                        {order.status}
+                        {isOrderMarkedPaid(order.id) ? "PAID" : order.status}
                       </p>
                     </div>
                   </div>
+                  <div className="mt-3 space-y-1">
+                    {order.items.slice(0, 2).map((item) => (
+                      <p key={item.id} className="text-xs text-slate-500">
+                        {item.product.name} x {item.quantity}
+                      </p>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/orders/${order.id}`)}
+                    className="mt-4 inline-flex items-center gap-2 rounded-full border border-biscuit/25 px-4 py-2 text-xs font-semibold text-biscuit-dark transition hover:border-biscuit"
+                  >
+                    <ShoppingBag className="size-3.5" />
+                    View Order
+                  </button>
                 </div>
               ))}
             </div>
