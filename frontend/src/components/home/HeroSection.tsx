@@ -17,8 +17,8 @@ export default function HeroCarousel() {
 
   if (!banners.length) {
     return (
-      <div className="px-4 py-6 md:px-6">
-        <div className="mx-auto h-[32rem] max-w-7xl overflow-hidden rounded-[2rem]">
+      <div className="px-3 py-4 sm:px-4 sm:py-6 md:px-6">
+        <div className="mx-auto h-[28rem] max-w-7xl overflow-hidden rounded-[1.5rem] sm:h-[32rem] sm:rounded-[2rem]">
           <Skeleton className="h-full w-full" />
         </div>
       </div>
@@ -26,7 +26,7 @@ export default function HeroCarousel() {
   }
 
   return (
-    <section className="px-4 py-6 md:px-6">
+    <section className="px-3 py-4 sm:px-4 sm:py-6 md:px-6">
       <div className="mx-auto max-w-7xl">
         <Carousel
           opts={{ loop: true }}
@@ -40,7 +40,7 @@ export default function HeroCarousel() {
           <CarouselContent>
             {banners.map((banner) => (
               <CarouselItem key={banner.id}>
-                <div className="relative min-h-[24rem] overflow-hidden rounded-[1.75rem] sm:min-h-[28rem] md:min-h-[34rem] md:rounded-[2rem]">
+                <div className="relative min-h-[23rem] overflow-hidden rounded-[1.35rem] sm:min-h-[28rem] sm:rounded-[1.75rem] md:min-h-[34rem] md:rounded-[2rem]">
                   <img
                     src={banner.imageUrl}
                     alt={banner.title}
@@ -49,23 +49,23 @@ export default function HeroCarousel() {
 
                   <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(31,22,17,0.86)_0%,rgba(31,22,17,0.46)_45%,rgba(31,22,17,0.12)_100%)]" />
 
-                  <div className="relative flex min-h-[24rem] items-center px-4 py-10 sm:min-h-[28rem] sm:px-6 sm:py-12 md:min-h-[34rem] md:px-12">
+                  <div className="relative flex min-h-[23rem] items-center px-3 py-7 sm:min-h-[28rem] sm:px-6 sm:py-12 md:min-h-[34rem] md:px-12">
                     <div className="max-w-2xl text-white">
-                      <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#f5d7bc]">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#f5d7bc] sm:text-sm sm:tracking-[0.35em]">
                         Curated weekly picks
                       </p>
-                      <h1 className="mt-4 text-3xl font-semibold leading-tight sm:text-4xl md:text-6xl">
+                      <h1 className="mt-3 text-[1.85rem] font-semibold leading-tight sm:mt-4 sm:text-4xl md:text-6xl">
                         {banner.title}
                       </h1>
-                      <p className="mt-4 max-w-xl text-sm leading-6 text-white/82 sm:mt-5 sm:text-base md:text-lg">
+                      <p className="mt-3 max-w-xl text-sm leading-6 text-white/82 sm:mt-5 sm:text-base md:text-lg">
                         {banner.subtitle}
                       </p>
 
-                      <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row">
+                      <div className="mt-6 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:gap-3">
                         <button
                           type="button"
                           onClick={() => navigate("/products")}
-                          className="inline-flex items-center justify-center gap-2 rounded-[1.15rem] bg-biscuit px-5 py-3 text-sm font-semibold text-white transition hover:bg-biscuit-dark sm:px-6"
+                          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[1rem] bg-biscuit px-4 py-3 text-sm font-semibold text-white transition hover:bg-biscuit-dark sm:rounded-[1.15rem] sm:px-6"
                         >
                           Shop collection
                           <ArrowRight className="size-4" />
@@ -73,38 +73,38 @@ export default function HeroCarousel() {
                         <button
                           type="button"
                           onClick={() => navigate("/products?sort=newest")}
-                          className="inline-flex items-center justify-center gap-2 rounded-[1.15rem] border border-white/35 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/15 sm:px-6"
+                          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[1rem] border border-white/35 bg-white/10 px-4 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/15 sm:rounded-[1.15rem] sm:px-6"
                         >
                           New arrivals
                           <Sparkles className="size-4" />
                         </button>
                       </div>
 
-                      <div className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-3">
-                        <div className="rounded-[1.15rem] bg-white/12 px-4 py-3 backdrop-blur">
+                      <div className="mt-5 grid gap-2.5 sm:mt-8 sm:grid-cols-3 sm:gap-3">
+                        <div className="rounded-[1rem] bg-white/12 px-3 py-2.5 backdrop-blur sm:rounded-[1.15rem] sm:px-4 sm:py-3">
                           <div className="flex items-center gap-2 text-sm font-semibold text-white">
                             <Truck className="size-4 text-[#f5d7bc]" />
                             Fast delivery
                           </div>
-                          <p className="mt-1 text-xs leading-5 text-white/70 sm:text-sm">
-                            Smooth on mobile small, medium, and large screens.
+                          <p className="mt-1 text-[11px] leading-5 text-white/70 sm:text-sm">
+                            Quick updates and cleaner browsing on every screen size.
                           </p>
                         </div>
-                        <div className="rounded-[1.15rem] bg-white/12 px-4 py-3 backdrop-blur">
+                        <div className="rounded-[1rem] bg-white/12 px-3 py-2.5 backdrop-blur sm:rounded-[1.15rem] sm:px-4 sm:py-3">
                           <div className="flex items-center gap-2 text-sm font-semibold text-white">
                             <BadgeCheck className="size-4 text-[#f5d7bc]" />
                             Quality picks
                           </div>
-                          <p className="mt-1 text-xs leading-5 text-white/70 sm:text-sm">
+                          <p className="mt-1 text-[11px] leading-5 text-white/70 sm:text-sm">
                             Handpicked products with a cleaner browsing flow.
                           </p>
                         </div>
-                        <div className="rounded-[1.15rem] bg-white/12 px-4 py-3 backdrop-blur">
+                        <div className="rounded-[1rem] bg-white/12 px-3 py-2.5 backdrop-blur sm:rounded-[1.15rem] sm:px-4 sm:py-3">
                           <div className="flex items-center gap-2 text-sm font-semibold text-white">
                             <Sparkles className="size-4 text-[#f5d7bc]" />
                             Fresh drops
                           </div>
-                          <p className="mt-1 text-xs leading-5 text-white/70 sm:text-sm">
+                          <p className="mt-1 text-[11px] leading-5 text-white/70 sm:text-sm">
                             Discover trending items without leaving the homepage.
                           </p>
                         </div>

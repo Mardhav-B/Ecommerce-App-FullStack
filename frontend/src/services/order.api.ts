@@ -25,6 +25,8 @@ export interface OrderData {
   items: OrderItemData[];
 }
 
+const PAID_ORDER_IDS_STORAGE_KEY = "paidOrderIds";
+
 function getAuthHeaders() {
   const token = localStorage.getItem("accessToken");
 
@@ -85,6 +87,38 @@ export function getCheckoutSnapshot(): {
 
 export function clearCheckoutSnapshot() {
   localStorage.removeItem("latestOrderSummary");
+}
+
+export function markOrderAsPaid(orderId: string) {
+  const currentIds = new Set(getPaidOrderIds());
+  currentIds.add(orderId);
+  localStorage.setItem(
+    PAID_ORDER_IDS_STORAGE_KEY,
+    JSON.stringify(Array.from(currentIds)),
+  );
+}
+
+export function getPaidOrderIds(): string[] {
+  const raw = localStorage.getItem(PAID_ORDER_IDS_STORAGE_KEY);
+
+  if (!raw) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as string[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export function isOrderMarkedPaid(orderId?: string | null) {
+  if (!orderId) {
+    return false;
+  }
+
+  return getPaidOrderIds().includes(orderId);
 }
 
 export async function fetchOrders() {

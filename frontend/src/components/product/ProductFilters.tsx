@@ -40,8 +40,8 @@ function ProductFiltersComponent({ value, onChange }: ProductFiltersProps) {
   };
 
   return (
-    <aside className="rounded-2xl border border-biscuit-light bg-white p-5 shadow-sm">
-      <div className="space-y-6">
+    <aside className="rounded-2xl border border-biscuit-light bg-white p-4 shadow-sm sm:p-5">
+      <div className="space-y-5 sm:space-y-6">
         <section>
           <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
             Search
@@ -54,7 +54,7 @@ function ProductFiltersComponent({ value, onChange }: ProductFiltersProps) {
                 onChange({ ...value, search: event.target.value })
               }
               placeholder="Search products"
-              className="h-10 rounded-xl border-biscuit-light pl-9"
+              className="h-10 rounded-xl border-biscuit-light pl-9 text-sm"
             />
           </div>
         </section>
@@ -137,7 +137,7 @@ function ProductFiltersComponent({ value, onChange }: ProductFiltersProps) {
           <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
             Categories
           </h2>
-          <div className="mt-3 space-y-3">
+          <div className="mt-3 max-h-64 space-y-3 overflow-y-auto pr-1">
             {isLoading ? (
               <p className="text-sm text-slate-500">Loading categories...</p>
             ) : (

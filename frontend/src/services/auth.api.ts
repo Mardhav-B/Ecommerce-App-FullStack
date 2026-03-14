@@ -57,6 +57,35 @@ export const saveAddress = async (data: SaveAddressInput): Promise<SavedAddress>
   return res.data;
 };
 
+export const updateAddress = async (
+  addressId: string,
+  data: SaveAddressInput,
+): Promise<SavedAddress> => {
+  const token = localStorage.getItem("accessToken");
+
+  if (!token) throw new Error("No access token");
+
+  const res = await api.patch<SavedAddress>(`/auth/addresses/${addressId}`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+export const deleteAddress = async (addressId: string) => {
+  const token = localStorage.getItem("accessToken");
+
+  if (!token) throw new Error("No access token");
+
+  await api.delete(`/auth/addresses/${addressId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 export const logoutUser = async () => {
   const token = localStorage.getItem("accessToken");
 

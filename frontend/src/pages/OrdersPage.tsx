@@ -5,14 +5,23 @@ import OrderCard from "@/components/order/OrderCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrders } from "@/hooks/useOrders";
 import { fetchCart, removeCartItem, type CartData } from "@/services/cart.api";
-import { getCheckoutSnapshot, type OrderData } from "@/services/order.api";
+import {
+  getCheckoutSnapshot,
+  isOrderMarkedPaid,
+  markOrderAsPaid,
+  type OrderData,
+} from "@/services/order.api";
 
 export default function OrdersPage() {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const checkoutSnapshot = getCheckoutSnapshot();
   const isPaymentReturn = searchParams.get("payment") === "success";
-  const requestedOrderId = searchParams.get("orderId");
+  const requestedOrderId =
+    searchParams.get("orderId") || checkoutSnapshot?.orderId || null;
+  const shouldForcePaidStatus =
+    Boolean(requestedOrderId) &&
+    (isPaymentReturn || checkoutSnapshot?.orderId === requestedOrderId);
   const { data: orders = [], isLoading, isError, error } = useOrders({
     refetchInterval: isPaymentReturn ? 2500 : false,
   });
@@ -23,17 +32,20 @@ export default function OrdersPage() {
   const displayOrders = useMemo(
     () =>
       orders.map((order) =>
-        isPaymentReturn && requestedOrderId && order.id === requestedOrderId
+        (shouldForcePaidStatus && requestedOrderId && order.id === requestedOrderId) ||
+        isOrderMarkedPaid(order.id)
           ? { ...order, status: "PAID" }
           : order,
       ),
-    [isPaymentReturn, orders, requestedOrderId],
+    [orders, requestedOrderId, shouldForcePaidStatus],
   );
 
   useEffect(() => {
-    if (!isPaymentReturn || !requestedOrderId) {
+    if (!shouldForcePaidStatus || !requestedOrderId) {
       return;
     }
+
+    markOrderAsPaid(requestedOrderId);
 
     queryClient.setQueryData<OrderData[]>(["orders"], (currentOrders) =>
       currentOrders?.map((order) =>
@@ -44,14 +56,19 @@ export default function OrdersPage() {
     queryClient.setQueryData<OrderData>(["order", requestedOrderId], (currentOrder) =>
       currentOrder ? { ...currentOrder, status: "PAID" } : currentOrder,
     );
-  }, [isPaymentReturn, queryClient, requestedOrderId]);
+  }, [queryClient, requestedOrderId, shouldForcePaidStatus]);
 
   useEffect(() => {
-    if (!isPaymentReturn || checkoutSnapshot?.mode === "buy_now") {
+    if (!checkoutSnapshot?.orderId || checkoutSnapshot.mode === "buy_now") {
       return;
     }
 
     let cancelled = false;
+
+    queryClient.setQueryData<CartData>(["cart"], (currentCart) => ({
+      id: currentCart?.id ?? null,
+      items: [],
+    }));
 
     const clearCartAfterPayment = async () => {
       try {
@@ -90,7 +107,7 @@ export default function OrdersPage() {
     return () => {
       cancelled = true;
     };
-  }, [checkoutSnapshot?.mode, isPaymentReturn, queryClient]);
+  }, [checkoutSnapshot?.mode, checkoutSnapshot?.orderId, queryClient]);
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#fcf5ee_0%,#fff_28%)] px-4 py-10 md:px-6">
@@ -106,8 +123,8 @@ export default function OrdersPage() {
 
         {isPaymentReturn ? (
           <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 p-5 text-sm text-green-800">
-            {highlightedOrder
-              ? `Payment completed successfully. Order ${highlightedOrder.id} is now confirmed.`
+            {highlightedOrder || requestedOrderId
+              ? `Payment completed successfully. Order ${highlightedOrder?.id ?? requestedOrderId} is now confirmed.`
               : "Payment completed. Your latest order is syncing and will update here shortly."}
           </div>
         ) : null}

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Minus, Plus, ShoppingBag, ShoppingCart, Star } from "lucide-react";
+import { Minus, PackageCheck, Plus, ShieldCheck, ShoppingBag, ShoppingCart, Star, Truck } from "lucide-react";
 import ProductImageGallery from "@/components/product/ProductImageGallery";
 import SuggestedProducts from "@/components/product/SuggestedProducts";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,7 @@ import { useProducts } from "@/hooks/useProducts";
 import { addToCart } from "@/services/product.api";
 import { createOrder } from "@/services/checkout.api";
 
-const SIZE_CATEGORIES = new Set([
-  "mens-shirts",
-  "mens-shoes",
-  "mens-watches",
-]);
+const SIZE_CATEGORIES = new Set(["mens-shirts"]);
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
@@ -90,8 +86,8 @@ export default function ProductDetailsPage() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-[linear-gradient(180deg,#fdf8f3_0%,#fff_22%)] px-4 py-10 md:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2">
+      <main className="min-h-screen bg-[linear-gradient(180deg,#fdf8f3_0%,#fff_22%)] px-3 py-8 sm:px-4 sm:py-10 md:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-6 sm:gap-8 lg:grid-cols-2 lg:gap-10">
           <Skeleton className="aspect-square w-full rounded-3xl" />
           <div className="space-y-4">
             <Skeleton className="h-6 w-1/3 rounded" />
@@ -106,7 +102,7 @@ export default function ProductDetailsPage() {
 
   if (isError || !product) {
     return (
-      <main className="min-h-screen px-4 py-10">
+      <main className="min-h-screen px-3 py-8 sm:px-4 sm:py-10">
         <div className="mx-auto max-w-3xl rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700">
           {error instanceof Error ? error.message : "Product not found."}
         </div>
@@ -138,9 +134,9 @@ export default function ProductDetailsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,#fdf8f3_0%,#fff_22%)] px-4 py-10 md:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl space-y-14">
-        <div className="mb-2 text-sm text-slate-500">
+    <main className="min-h-screen bg-[linear-gradient(180deg,#fdf8f3_0%,#fff_22%)] px-3 py-8 sm:px-4 sm:py-10 md:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-10 sm:space-y-12 lg:space-y-14">
+        <div className="mb-2 line-clamp-2 text-xs text-slate-500 sm:text-sm">
           <Link to="/products" className="hover:text-biscuit-dark">
             Products
           </Link>
@@ -148,29 +144,29 @@ export default function ProductDetailsPage() {
           <span>{product.name}</span>
         </div>
 
-        <section className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_440px]">
+        <section className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_440px] lg:gap-10">
           <ProductImageGallery
             key={product.id}
             images={product.images}
             alt={product.name}
           />
 
-          <div className="rounded-3xl border border-biscuit-light bg-white p-6 shadow-sm md:p-8">
-            <div className="space-y-5">
+          <div className="rounded-3xl border border-biscuit-light bg-white p-4 shadow-sm sm:p-5 md:p-8">
+            <div className="space-y-4 sm:space-y-5">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-biscuit-dark">
                   {product.categoryName ?? "Selected Product"}
                 </p>
-                <h1 className="mt-2 text-3xl font-semibold text-slate-900">
+                <h1 className="mt-2 text-2xl font-semibold leading-tight text-slate-900 sm:text-3xl">
                   {product.name}
                 </h1>
               </div>
 
-              <div className="flex items-center gap-3">
-                <p className="text-3xl font-semibold text-biscuit-dark">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                <p className="text-2xl font-semibold text-biscuit-dark sm:text-3xl">
                   ${product.price.toFixed(2)}
                 </p>
-                <div className="flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-sm text-amber-600">
+                <div className="flex w-fit items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-sm text-amber-600">
                   {Array.from({ length: 5 }).map((_, index) => (
                     <Star
                       key={`star-${index}`}
@@ -185,20 +181,22 @@ export default function ProductDetailsPage() {
                 </div>
               </div>
 
-              <p className="leading-7 text-slate-600">{product.description}</p>
+              <p className="text-sm leading-6 text-slate-600 sm:text-base sm:leading-7">
+                {product.description}
+              </p>
 
               {sizes.length ? (
                 <div className="space-y-3">
                   <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
                     Size
                   </p>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-2 sm:gap-3">
                     {sizes.map((size) => (
                       <button
                         key={size}
                         type="button"
                         onClick={() => setSelectedSize(size)}
-                        className={`rounded-full border px-4 py-2 text-sm transition ${
+                        className={`rounded-full border px-3 py-2 text-sm transition sm:px-4 ${
                           selectedSize === size
                             ? "border-biscuit bg-biscuit text-white"
                             : "border-biscuit-light text-slate-700 hover:border-biscuit"
@@ -223,7 +221,7 @@ export default function ProductDetailsPage() {
                   >
                     <Minus className="size-4" />
                   </button>
-                  <span className="min-w-12 px-4 text-center font-semibold">
+                  <span className="min-w-10 px-3 text-center text-sm font-semibold sm:min-w-12 sm:px-4 sm:text-base">
                     {quantity}
                   </span>
                   <button
@@ -240,7 +238,7 @@ export default function ProductDetailsPage() {
 
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Button
-                  className="h-11 flex-1 bg-biscuit text-white hover:bg-biscuit-dark"
+                  className="h-11 w-full flex-1 bg-biscuit text-white hover:bg-biscuit-dark"
                   onClick={handleAddToCart}
                   disabled={cartMutation.isPending}
                 >
@@ -249,13 +247,69 @@ export default function ProductDetailsPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="h-11 flex-1 border-biscuit text-biscuit-dark hover:bg-biscuit-light"
+                  className="h-11 w-full flex-1 border-biscuit text-biscuit-dark hover:bg-biscuit-light"
                   onClick={() => void handleBuyNow()}
                   disabled={cartMutation.isPending || buyNowMutation.isPending}
                 >
                   <ShoppingBag className="size-4" />
                   {buyNowMutation.isPending ? "Starting..." : "Buy Now"}
                 </Button>
+              </div>
+
+              <div className="rounded-2xl border border-biscuit-light bg-[linear-gradient(180deg,#fff_0%,#fcf8f3_100%)] p-3 sm:p-4">
+                <div className="grid gap-2.5 sm:grid-cols-3 sm:gap-3">
+                  <div className="flex items-center gap-2 rounded-xl bg-white/80 px-3 py-2">
+                    <Truck className="size-4 text-biscuit-dark" />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Fast dispatch</p>
+                      <p className="text-[11px] text-slate-500">Quick shipping updates</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-xl bg-white/80 px-3 py-2">
+                    <ShieldCheck className="size-4 text-biscuit-dark" />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Secure payment</p>
+                      <p className="text-[11px] text-slate-500">Protected checkout flow</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-xl bg-white/80 px-3 py-2">
+                    <PackageCheck className="size-4 text-biscuit-dark" />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Quality checked</p>
+                      <p className="text-[11px] text-slate-500">Carefully selected item</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 grid gap-2.5 border-t border-biscuit-light/70 pt-3 sm:grid-cols-3 sm:gap-3">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                      Category
+                    </p>
+                    <p className="mt-1 text-sm text-slate-700">
+                      {product.categoryName ?? "General"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                      Availability
+                    </p>
+                    <p className="mt-1 text-sm text-slate-700">
+                      {product.stock > 0 ? `${product.stock} in stock` : "Currently unavailable"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                      Support
+                    </p>
+                    <p className="mt-1 text-sm text-slate-700">
+                      Easy help with orders and delivery updates.
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-3 text-[11px] leading-5 text-slate-500 sm:text-xs sm:leading-6">
+                  A polished everyday pick designed for simple ordering, secure checkout,
+                  and clear delivery updates after purchase.
+                </p>
               </div>
 
               {feedback ? <p className="text-sm text-slate-500">{feedback}</p> : null}
