@@ -1,11 +1,29 @@
 import prisma from "../config/prisma";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { generateAccessToken, generateRefreshToken } from "../utils/token";
+import crypto from "crypto";
+import { generateAccessToken } from "../utils/token";
 
-const JWT_SECRET = process.env.JWT_SECRET || "secret";
+const REFRESH_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
-const refreshTokens: Set<string> = new Set();
+function hashRefreshToken(token: string) {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
+
+async function issueRefreshToken(userId: string) {
+  const token = crypto.randomBytes(48).toString("hex");
+  const tokenHash = hashRefreshToken(token);
+  const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
+
+  await prisma.refreshToken.create({
+    data: {
+      userId,
+      tokenHash,
+      expiresAt,
+    },
+  });
+
+  return token;
+}
 
 export const registerUser = async (
   name: string,
@@ -53,9 +71,7 @@ export const loginUser = async (email: string, password: string) => {
   }
 
   const accessToken = generateAccessToken(user.id);
-  const refreshToken = generateRefreshToken(user.id);
-
-  refreshTokens.add(refreshToken);
+  const refreshToken = await issueRefreshToken(user.id);
 
   return {
     accessToken,
@@ -69,23 +85,33 @@ export const loginUser = async (email: string, password: string) => {
 };
 
 export const refreshAccessToken = async (refreshToken: string) => {
-  if (!refreshTokens.has(refreshToken)) {
+  const tokenHash = hashRefreshToken(refreshToken);
+
+  const existing = await prisma.refreshToken.findUnique({
+    where: { tokenHash },
+    select: { id: true, userId: true, expiresAt: true, revokedAt: true },
+  });
+
+  if (!existing || existing.revokedAt || existing.expiresAt <= new Date()) {
     throw new Error("Invalid refresh token");
   }
 
-  try {
-    const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET!) as {
-      userId: string;
-    };
-    const newAccessToken = generateAccessToken(decoded.userId);
+  await prisma.refreshToken.update({
+    where: { id: existing.id },
+    data: { revokedAt: new Date() },
+  });
 
-    return { accessToken: newAccessToken };
-  } catch (error) {
-    refreshTokens.delete(refreshToken);
-    throw new Error("Invalid refresh token");
-  }
+  const nextRefreshToken = await issueRefreshToken(existing.userId);
+  const newAccessToken = generateAccessToken(existing.userId);
+
+  return { accessToken: newAccessToken, refreshToken: nextRefreshToken };
 };
 
 export const logoutUser = (refreshToken: string) => {
-  refreshTokens.delete(refreshToken);
+  const tokenHash = hashRefreshToken(refreshToken);
+
+  return prisma.refreshToken.updateMany({
+    where: { tokenHash, revokedAt: null },
+    data: { revokedAt: new Date() },
+  });
 };

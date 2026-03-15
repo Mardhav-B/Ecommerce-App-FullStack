@@ -8,11 +8,15 @@ import {
 
 function getRefreshCookieOptions() {
   const isProduction = process.env.NODE_ENV === "production";
+  const frontendUrl = process.env.FRONTEND_URL ?? "";
+  const isHttpsFrontend = /^https:\/\//i.test(frontendUrl);
+
+  const useSecureCookies = isProduction || isHttpsFrontend;
 
   return {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? ("none" as const) : ("lax" as const),
+    secure: useSecureCookies,
+    sameSite: useSecureCookies ? ("none" as const) : ("lax" as const),
     maxAge: 7 * 24 * 60 * 60 * 1000,
   };
 }
@@ -82,6 +86,9 @@ export const refresh = async (req: Request, res: Response) => {
 
     const result = await refreshAccessToken(refreshToken);
 
+    // Rotate refresh token on every refresh to reduce replay risk.
+    res.cookie("refreshToken", result.refreshToken, getRefreshCookieOptions());
+
     return res.status(200).json({
       message: "Token refreshed successfully",
       accessToken: result.accessToken,
@@ -98,16 +105,14 @@ export const logout = async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken;
 
     if (refreshToken) {
-      logoutUser(refreshToken);
+      await logoutUser(refreshToken);
     }
 
+    const cookieOptions = getRefreshCookieOptions();
     res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite:
-        process.env.NODE_ENV === "production"
-          ? ("none" as const)
-          : ("lax" as const),
+      httpOnly: cookieOptions.httpOnly,
+      secure: cookieOptions.secure,
+      sameSite: cookieOptions.sameSite,
     });
 
     return res.status(200).json({
