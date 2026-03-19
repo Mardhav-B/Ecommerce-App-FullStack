@@ -36,7 +36,7 @@ export const addToCart = async (
     where: {
       cartId: cart.id,
       productId,
-    },
+    }, 
   });
 
   if (existingItem) {

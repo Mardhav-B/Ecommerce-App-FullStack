@@ -24,7 +24,10 @@ function CartItemComponent({
       <div className="flex flex-col gap-4 sm:flex-row">
         <div className="overflow-hidden rounded-xl bg-biscuit-light sm:w-32">
           <img
-            src={item.product.imageUrl || "https://placehold.co/400x400/f6ede4/8b6b50?text=Product"}
+            src={
+              item.product.imageUrl ||
+              "https://placehold.co/400x400/f6ede4/8b6b50?text=Product"
+            }
             alt={item.product.name}
             className="h-32 w-full object-contain bg-white p-3"
           />
@@ -54,12 +57,12 @@ function CartItemComponent({
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="inline-flex items-center rounded-full border border-biscuit-light bg-biscuit-light/50 p-1">
-              <Button
+              <Button 
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                className="rounded-full"
-                disabled={disabled}
+                className={item.quantity <= 1 ? "opacity-25!" : "opacity-100"}
+                disabled={disabled || item.quantity <= 1}
                 onClick={() =>
                   item.quantity <= 1
                     ? onRemove(item.id)

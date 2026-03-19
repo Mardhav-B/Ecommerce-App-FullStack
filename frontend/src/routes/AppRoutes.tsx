@@ -10,6 +10,7 @@ import OrderSuccessPage from "../pages/OrderSuccessPage";
 import OrdersPage from "../pages/OrdersPage";
 import OrderDetailsPage from "../pages/OrderDetailsPage";
 import WishlistPage from "../pages/WishlistPage";
+import RequireAuth from "./RequireAuth";
 
 const ProductsPage = lazy(() => import("../pages/ProductsPage"));
 const ProductDetailsPage = lazy(() => import("../pages/ProductDetailsPage"));
@@ -24,14 +25,14 @@ export default function AppRoutes() {
 
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/products/:id" element={<ProductDetailsPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/cart" element={<RequireAuth><CartPage /></RequireAuth>} />
+          <Route path="/checkout" element={<RequireAuth><CheckoutPage /></RequireAuth>} />
           <Route path="/order-success" element={<OrderSuccessPage />} />
-          <Route path="/orders" element={<OrdersPage />} />
-          <Route path="/orders/:id" element={<OrderDetailsPage />} />
-          <Route path="/wishlist" element={<WishlistPage />} />
+          <Route path="/orders" element={<RequireAuth><OrdersPage /></RequireAuth>} />
+          <Route path="/orders/:id" element={<RequireAuth><OrderDetailsPage /></RequireAuth>} />
+          <Route path="/wishlist" element={<RequireAuth><WishlistPage /></RequireAuth>} />
           <Route path="/auth" element={<AuthPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile" element={<RequireAuth><ProfilePage /></RequireAuth>} />
         </Routes>
       </Suspense>
     </BrowserRouter>
