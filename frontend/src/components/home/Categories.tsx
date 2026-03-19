@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { fetchCategories, type Category } from "../../services/api";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
+import { buildImageSrcSet, withImageParams } from "@/lib/image";
 
 export default function Categories() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -80,8 +81,12 @@ export default function Categories() {
                   <div className="overflow-hidden rounded-[1rem] bg-biscuit-light sm:rounded-[1.25rem]">
                     {category.imageUrl ? (
                       <img
-                        src={category.imageUrl}
+                        src={withImageParams(category.imageUrl, { width: 600, quality: 80 })}
+                        srcSet={buildImageSrcSet(category.imageUrl, [400, 600, 800, 1000], { quality: 80 })}
+                        sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
                         alt={category.name}
+                        loading="lazy"
+                        decoding="async"
                         className="h-36 w-full object-cover transition duration-500 group-hover:scale-105 sm:h-44"
                       />
                     ) : (

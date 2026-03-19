@@ -6,6 +6,7 @@ import { fetchHeroBanners, type HeroBanner } from "../../services/api";
 import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { Skeleton } from "../ui/skeleton";
+import { buildImageSrcSet, withImageParams } from "@/lib/image";
 
 export default function HeroCarousel() {
   const [banners, setBanners] = useState<HeroBanner[]>([]);
@@ -38,12 +39,17 @@ export default function HeroCarousel() {
           ]}
         >
           <CarouselContent>
-            {banners.map((banner) => (
+            {banners.map((banner, index) => (
               <CarouselItem key={banner.id}>
                 <div className="relative min-h-[23rem] overflow-hidden rounded-[1.35rem] sm:min-h-[28rem] sm:rounded-[1.75rem] md:min-h-[34rem] md:rounded-[2rem]">
                   <img
-                    src={banner.imageUrl}
+                    src={withImageParams(banner.imageUrl, { width: 1280, quality: 80 })}
+                    srcSet={buildImageSrcSet(banner.imageUrl, [640, 960, 1280, 1600], { quality: 80 })}
+                    sizes="100vw"
                     alt={banner.title}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    fetchPriority={index === 0 ? "high" : "auto"}
+                    decoding="async"
                     className="absolute inset-0 h-full w-full object-cover"
                   />
 

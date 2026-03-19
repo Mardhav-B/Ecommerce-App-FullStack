@@ -82,7 +82,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(135deg,#fcf5ee_0%,#f0dfcf_100%)] px-4 py-10">
+    <main className="min-h-screen bg-[linear-gradient(135deg,#fcf5ee_0%,#f0dfcf_100%)] px-4 py-10">
       <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-6xl overflow-hidden rounded-[2rem] bg-white shadow-[0_30px_90px_rgba(106,70,39,0.16)] lg:grid-cols-[1.05fr_0.95fr]">
         <div className="relative hidden overflow-hidden bg-[linear-gradient(180deg,#e3b588_0%,#c88e5b_100%)] p-10 text-white lg:block">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.22),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.12),transparent_30%)]" />
@@ -207,6 +207,6 @@ export default function AuthPage() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -117,12 +117,12 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[linear-gradient(180deg,#fcf5ee_0%,#f3e5d6_100%)] px-4 py-10">
+      <main className="min-h-screen bg-[linear-gradient(180deg,#fcf5ee_0%,#f3e5d6_100%)] px-4 py-10">
         <div className="mx-auto max-w-6xl space-y-6">
           <Skeleton className="h-48 w-full rounded-[2rem]" />
           <Skeleton className="h-80 w-full rounded-[2rem]" />
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -132,7 +132,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#fcf5ee_0%,#f3e5d6_100%)] px-4 py-10">
+    <main className="min-h-screen bg-[linear-gradient(180deg,#fcf5ee_0%,#f3e5d6_100%)] px-4 py-10">
       <div
         className={`mx-auto max-w-6xl space-y-8 transition-all duration-500 ${
           visible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
@@ -358,6 +358,6 @@ export default function ProfilePage() {
           )}
         </section>
       </div>
-    </div>
+    </main>
   );
 }

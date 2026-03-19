@@ -34,7 +34,7 @@ function isAbsoluteUrl(value: string) {
 
 function normalizeAssetUrl(
   value?: string | null,
-  options: { width: number; quality: number } = { width: 1400, quality: 90 },
+  options: { width: number; quality: number } = { width: 1200, quality: 80 },
 ) {
   if (!value) {
     return "";
@@ -60,7 +60,7 @@ function normalizeAssetUrl(
       url.searchParams.set("fit", "crop");
       url.searchParams.set("w", String(options.width));
       url.searchParams.set("q", String(options.quality));
-      url.searchParams.set("dpr", "2");
+      url.searchParams.delete("dpr");
       return url.toString();
     }
 
@@ -68,7 +68,7 @@ function normalizeAssetUrl(
       url.searchParams.set("auto", "compress");
       url.searchParams.set("cs", "tinysrgb");
       url.searchParams.set("w", String(options.width));
-      url.searchParams.set("dpr", "2");
+      url.searchParams.delete("dpr");
       return url.toString();
     }
 
@@ -161,13 +161,13 @@ export const fetchHeroBanners = async (): Promise<HeroBanner[]> => {
     if (Array.isArray(data)) {
       return data.map((banner: HeroBanner) => ({
         ...banner,
-        imageUrl: normalizeAssetUrl(banner.imageUrl, { width: 1800, quality: 92 }),
+        imageUrl: normalizeAssetUrl(banner.imageUrl, { width: 1600, quality: 80 }),
       }));
     }
     if (Array.isArray(data.banners)) {
       return data.banners.map((banner: HeroBanner) => ({
         ...banner,
-        imageUrl: normalizeAssetUrl(banner.imageUrl, { width: 1800, quality: 92 }),
+        imageUrl: normalizeAssetUrl(banner.imageUrl, { width: 1600, quality: 80 }),
       }));
     }
 
