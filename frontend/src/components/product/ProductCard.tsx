@@ -6,6 +6,7 @@ import { Heart, Minus, Plus, ShoppingCart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { addToCart, type Product } from "@/services/product.api";
 import { useWishlist } from "@/hooks/useWishlist";
+import { buildImageSrcSet, withImageParams } from "@/lib/image";
 
 interface ProductCardProps {
   product: Product;
@@ -54,13 +55,20 @@ function ProductCardComponent({
               setFeedback("Please sign in to save items to your wishlist.");
             }
           }}
+          aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+          aria-pressed={wishlisted}
+          title={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
           className={`inline-flex size-9 items-center justify-center rounded-full border transition ${
             wishlisted
               ? "border-biscuit bg-biscuit-light text-biscuit-dark"
               : "border-biscuit-light text-slate-500 hover:border-biscuit hover:text-biscuit-dark"
           }`}
         >
-          <Heart className={`size-4 ${wishlisted ? "fill-current" : ""}`} />
+          <Heart
+            aria-hidden="true"
+            focusable="false"
+            className={`size-4 ${wishlisted ? "fill-current" : ""}`}
+          />
         </button>
       </div>
 
@@ -69,7 +77,9 @@ function ProductCardComponent({
         className="block overflow-hidden rounded-xl bg-white"
       >
         <img
-          src={product.imageUrl}
+          src={withImageParams(product.imageUrl, { width: 600, quality: 80 })}
+          srcSet={buildImageSrcSet(product.imageUrl, [320, 480, 600, 800, 1000], { quality: 80 })}
+          sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, (min-width: 360px) 50vw, 100vw"
           alt={product.name}
           loading={lazyImage ? "lazy" : "eager"}
           decoding="async"

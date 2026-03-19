@@ -88,7 +88,7 @@ function isAbsoluteUrl(value: string) {
 
 function normalizeAssetUrl(
   value?: string | null,
-  options: { width: number; quality: number } = { width: 1800, quality: 95 },
+  options: { width: number; quality: number } = { width: 1200, quality: 80 },
 ) {
   if (!value) {
     return FALLBACK_IMAGE;
@@ -114,7 +114,7 @@ function normalizeAssetUrl(
       url.searchParams.set("fit", "crop");
       url.searchParams.set("w", String(options.width));
       url.searchParams.set("q", String(options.quality));
-      url.searchParams.set("dpr", "2");
+      url.searchParams.delete("dpr");
       return url.toString();
     }
 
@@ -122,7 +122,7 @@ function normalizeAssetUrl(
       url.searchParams.set("auto", "compress");
       url.searchParams.set("cs", "tinysrgb");
       url.searchParams.set("w", String(options.width));
-      url.searchParams.set("dpr", "2");
+      url.searchParams.delete("dpr");
       return url.toString();
     }
 
@@ -163,15 +163,15 @@ function normalizeImages(product: RawProduct) {
         .filter(Boolean)
         .map((image) =>
           normalizeAssetUrl(image, {
-            width: 2200,
-            quality: 96,
+            width: 1200,
+            quality: 80,
           }),
         )
     : [];
   const primaryImage =
     normalizeAssetUrl(product.imageUrl, {
-      width: 2200,
-      quality: 96,
+      width: 1200,
+      quality: 80,
     }) ||
     sourceImages[0] ||
     FALLBACK_IMAGE;

@@ -49,7 +49,7 @@ export default function FeaturedProducts() {
                 </div>
               ))
             : products.map((product) => (
-                <ProductCard key={product.id} product={product} lazyImage={false} />
+                <ProductCard key={product.id} product={product} />
               ))}
         </div>
       </div>
