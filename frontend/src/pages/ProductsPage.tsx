@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProductFilters, {
   type FilterState,
@@ -17,21 +17,48 @@ const defaultFilters: FilterState = {
 
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filters, setFilters] = useState<FilterState>(() => ({
-    categories: searchParams.get("category")?.split(",").filter(Boolean) ?? [],
-    minPrice: Number(searchParams.get("minPrice") ?? defaultFilters.minPrice),
-    maxPrice: Number(searchParams.get("maxPrice") ?? defaultFilters.maxPrice),
-    search: searchParams.get("search") ?? "",
-    sort:
-      (searchParams.get("sort") as FilterState["sort"]) ?? defaultFilters.sort,
-  }));
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const filters = useMemo<FilterState>(
+    () => ({
+      categories:
+        searchParams.get("category")?.split(",").filter(Boolean) ?? [],
+      minPrice: Number(searchParams.get("minPrice") ?? defaultFilters.minPrice),
+      maxPrice: Number(searchParams.get("maxPrice") ?? defaultFilters.maxPrice),
+      search: searchParams.get("search") ?? "",
+      sort:
+        (searchParams.get("sort") as FilterState["sort"]) ??
+        defaultFilters.sort,
+    }),
+    [searchParams],
+  );
+  const handleFiltersChange = (nextFilters: FilterState) => {
+    const nextSearchParams = new URLSearchParams();
+
+    if (nextFilters.categories.length) {
+      nextSearchParams.set("category", nextFilters.categories.join(","));
+    }
+    if (nextFilters.minPrice !== defaultFilters.minPrice) {
+      nextSearchParams.set("minPrice", String(nextFilters.minPrice));
+    }
+    if (nextFilters.maxPrice !== defaultFilters.maxPrice) {
+      nextSearchParams.set("maxPrice", String(nextFilters.maxPrice));
+    }
+    if (nextFilters.search.trim()) {
+      nextSearchParams.set("search", nextFilters.search.trim());
+    }
+    if (nextFilters.sort !== defaultFilters.sort) {
+      nextSearchParams.set("sort", nextFilters.sort);
+    }
+
+    setSearchParams(nextSearchParams, { replace: true });
+  };
 
   const {
     data,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    isFetching,
     isLoading,
     isError,
     error,
@@ -48,41 +75,7 @@ export default function ProductsPage() {
     () => data?.pages.flatMap((page) => page.products) ?? [],
     [data],
   );
-
-  useEffect(() => {
-    setFilters({
-      categories:
-        searchParams.get("category")?.split(",").filter(Boolean) ?? [],
-      minPrice: Number(searchParams.get("minPrice") ?? defaultFilters.minPrice),
-      maxPrice: Number(searchParams.get("maxPrice") ?? defaultFilters.maxPrice),
-      search: searchParams.get("search") ?? "",
-      sort:
-        (searchParams.get("sort") as FilterState["sort"]) ??
-        defaultFilters.sort,
-    });
-  }, [searchParams]);
-
-  useEffect(() => {
-    const nextSearchParams = new URLSearchParams();
-
-    if (filters.categories.length) {
-      nextSearchParams.set("category", filters.categories.join(","));
-    }
-    if (filters.minPrice !== defaultFilters.minPrice) {
-      nextSearchParams.set("minPrice", String(filters.minPrice));
-    }
-    if (filters.maxPrice !== defaultFilters.maxPrice) {
-      nextSearchParams.set("maxPrice", String(filters.maxPrice));
-    }
-    if (filters.search.trim()) {
-      nextSearchParams.set("search", filters.search.trim());
-    }
-    if (filters.sort !== defaultFilters.sort) {
-      nextSearchParams.set("sort", filters.sort);
-    }
-
-    setSearchParams(nextSearchParams, { replace: true });
-  }, [filters, setSearchParams]);
+  const isGridLoading = isLoading || isFetching;
 
   useEffect(() => {
     const node = sentinelRef.current;
@@ -119,7 +112,7 @@ export default function ProductsPage() {
 
         <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start">
           <div className="lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] lg:self-start lg:overflow-y-auto lg:pr-2">
-            <ProductFilters value={filters} onChange={setFilters} />
+            <ProductFilters value={filters} onChange={handleFiltersChange} />
           </div>
 
           <section className="space-y-6">
@@ -140,12 +133,12 @@ export default function ProductsPage() {
 
             <ProductGrid
               products={products}
-              isLoading={isLoading}
+              isLoading={isGridLoading}
               skeletonCount={8}
               lazyImages
             />
 
-            {!isLoading && products.length === 0 ? (
+            {!isGridLoading && products.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-biscuit-light bg-white p-10 text-center text-slate-500">
                 No products match the selected filters.
               </div>

@@ -85,6 +85,12 @@ export default function WishlistPage() {
             <p className="mt-2 text-sm text-slate-500">
               Save products from the listing page and they will show up here.
             </p>
+            <Button
+              asChild
+              className="mt-6 bg-biscuit text-white hover:bg-biscuit-dark"
+            >
+              <Link to="/products">Continue Shopping</Link>
+            </Button>
           </div>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">

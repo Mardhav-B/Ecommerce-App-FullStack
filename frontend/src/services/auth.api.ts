@@ -1,4 +1,5 @@
 import api from "@/api/axios";
+import { isAxiosError } from "axios";
 
 export interface SavedAddress {
   id: string;
@@ -17,18 +18,78 @@ export interface SaveAddressInput {
   zipCode: string;
 }
 
-export const loginUser = async (data: any) => {
-  const res = await api.post("/auth/login", data);
-  const result = res.data;
+export interface LoginInput {
+  email: string;
+  password: string;
+}
 
-  localStorage.setItem("accessToken", result.accessToken);
+export interface RegisterInput extends LoginInput {
+  name: string;
+}
 
-  return result;
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface LoginResponse {
+  message?: string;
+  accessToken: string;
+  user: AuthUser;
+}
+
+export interface RegisterResponse {
+  message?: string;
+  user: AuthUser;
+}
+
+function extractApiErrorMessage(error: unknown, fallback: string) {
+  if (!isAxiosError(error)) {
+    return fallback;
+  }
+
+  const data = error.response?.data as unknown;
+
+  if (typeof data === "string" && data.trim()) {
+    return data;
+  }
+
+  if (
+    data &&
+    typeof data === "object" &&
+    "message" in data &&
+    typeof (data as { message?: unknown }).message === "string" &&
+    (data as { message: string }).message.trim()
+  ) {
+    return (data as { message: string }).message;
+  }
+
+  return fallback;
+}
+
+export const loginUser = async (data: LoginInput): Promise<LoginResponse> => {
+  try {
+    const res = await api.post<LoginResponse>("/auth/login", data);
+    const result = res.data;
+
+    localStorage.setItem("accessToken", result.accessToken);
+
+    return result;
+  } catch (error) {
+    throw new Error(extractApiErrorMessage(error, "Login failed"));
+  }
 };
 
-export const registerUser = async (data: any) => {
-  const res = await api.post("/auth/register", data);
-  return res.data;
+export const registerUser = async (
+  data: RegisterInput,
+): Promise<RegisterResponse> => {
+  try {
+    const res = await api.post<RegisterResponse>("/auth/register", data);
+    return res.data;
+  } catch (error) {
+    throw new Error(extractApiErrorMessage(error, "Registration failed"));
+  }
 };
 
 export const getProfile = async () => {
@@ -36,12 +97,16 @@ export const getProfile = async () => {
 
   if (!token) throw new Error("No access token");
 
-  const res = await api.get("/auth/profile", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return res.data; 
+  try {
+    const res = await api.get("/auth/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    throw new Error(extractApiErrorMessage(error, "Unable to load profile"));
+  }
 };
 
 export const saveAddress = async (data: SaveAddressInput): Promise<SavedAddress> => {

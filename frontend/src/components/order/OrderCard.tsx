@@ -38,15 +38,23 @@ function OrderCardComponent({ order }: OrderCardProps) {
             key={item.id}
             className="flex items-center gap-3 rounded-xl border border-biscuit-light bg-biscuit-light/20 p-3"
           >
-            <img
-              src={item.product.imageUrl || "https://placehold.co/160x160/f6ede4/8b6b50?text=Item"}
-              alt={item.product.name}
-              className="size-14 rounded-lg bg-white object-contain p-2"
-            />
+            <Link to={`/products/${item.productId}`} className="shrink-0">
+              <img
+                src={
+                  item.product.imageUrl ||
+                  "https://placehold.co/160x160/f6ede4/8b6b50?text=Item"
+                }
+                alt={item.product.name}
+                className="size-14 rounded-lg bg-white object-contain p-2"
+              />
+            </Link>
             <div className="min-w-0">
-              <p className="line-clamp-1 text-sm font-medium text-slate-900">
+              <Link
+                to={`/products/${item.productId}`}
+                className="line-clamp-1 text-sm font-medium text-slate-900 hover:text-biscuit-dark"
+              >
                 {item.product.name}
-              </p>
+              </Link>
               <p className="text-xs text-slate-500">Qty {item.quantity}</p>
             </div>
           </div>

@@ -19,9 +19,7 @@ export default function OrdersPage() {
   const isPaymentReturn = searchParams.get("payment") === "success";
   const requestedOrderId =
     searchParams.get("orderId") || checkoutSnapshot?.orderId || null;
-  const shouldForcePaidStatus =
-    Boolean(requestedOrderId) &&
-    (isPaymentReturn || checkoutSnapshot?.orderId === requestedOrderId);
+  const shouldForcePaidStatus = Boolean(requestedOrderId) && isPaymentReturn;
   const { data: orders = [], isLoading, isError, error } = useOrders({
     refetchInterval: isPaymentReturn ? 2500 : false,
   });
@@ -59,16 +57,16 @@ export default function OrdersPage() {
   }, [queryClient, requestedOrderId, shouldForcePaidStatus]);
 
   useEffect(() => {
-    if (!checkoutSnapshot?.orderId || checkoutSnapshot.mode === "buy_now") {
+    if (
+      !isPaymentReturn ||
+      !checkoutSnapshot?.orderId ||
+      checkoutSnapshot.mode === "buy_now" ||
+      (requestedOrderId && checkoutSnapshot.orderId !== requestedOrderId)
+    ) {
       return;
     }
 
     let cancelled = false;
-
-    queryClient.setQueryData<CartData>(["cart"], (currentCart) => ({
-      id: currentCart?.id ?? null,
-      items: [],
-    }));
 
     const clearCartAfterPayment = async () => {
       try {
@@ -107,7 +105,13 @@ export default function OrdersPage() {
     return () => {
       cancelled = true;
     };
-  }, [checkoutSnapshot?.mode, checkoutSnapshot?.orderId, queryClient]);
+  }, [
+    checkoutSnapshot?.mode,
+    checkoutSnapshot?.orderId,
+    isPaymentReturn,
+    queryClient,
+    requestedOrderId,
+  ]);
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#fcf5ee_0%,#fff_28%)] px-4 py-10 md:px-6">

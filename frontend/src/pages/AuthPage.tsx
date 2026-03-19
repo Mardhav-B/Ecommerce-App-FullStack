@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { LockKeyhole, Mail, User2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,6 +28,7 @@ export default function AuthPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
 
   const {
@@ -65,7 +66,12 @@ export default function AuthPage() {
       }
 
       reset();
-      navigate("/");
+      const from =
+        (location.state as { from?: { pathname?: string; search?: string; hash?: string } } | null)
+          ?.from ?? null;
+      const redirectTo =
+        from?.pathname ? `${from.pathname}${from.search ?? ""}${from.hash ?? ""}` : "/";
+      navigate(redirectTo, { replace: true });
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "Authentication failed",
